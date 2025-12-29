@@ -52,15 +52,6 @@ export default function Home() {
 
   // Move project to next/prev status
   const moveProject = (projectId: string, newStatus: ProjectStatus) => {
-    // Validasi: cek apakah editor sudah diisi jika pindah ke editing
-    const project = projects.find(p => p.id === projectId);
-    if (project && newStatus === "editing" && !project.editor) {
-      toast.error("Nama Editor Belum Diisi!", {
-        description: "Mohon isi nama editor terlebih dahulu sebelum memindahkan ke tahap editing.",
-      });
-      return;
-    }
-
     setProjects(prev => prev.map(p => {
       if (p.id === projectId) {
         // Ambil progress dari tahapan yang dituju

@@ -58,6 +58,10 @@ export interface TVProject {
   airTime?: string; // Jam tayang
   editor?: string; // Nama editor yang menangani
   logs?: ProductionLog[]; // Production timeline
+  // Archive system
+  isArchived?: boolean; // Apakah project sudah diarchive
+  archivedAt?: string; // Tanggal archive
+  archivedBy?: string; // Siapa yang archive
 }
 
 export const STATUS_CONFIG: Record<ProjectStatus, {
