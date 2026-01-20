@@ -20,10 +20,11 @@ export function updateStageProgress(
   newProgress: number
 ): StageProgress {
   const stageProgress = project.stageProgress || {
+    "pre-produksi": 0,
     shooting: 0,
     editing: 0,
     selesai: 0,
-    kirim: 0
+    payment: 0
   };
 
   return {

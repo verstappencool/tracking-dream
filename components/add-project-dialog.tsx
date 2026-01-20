@@ -132,10 +132,11 @@ export function AddProjectDialog({ open, onOpenChange, onAdd, existingProjects =
       dueDate: formData.dueDate,
       progress: formData.progress,
       stageProgress: {
+        "pre-produksi": formData.status === "pre-produksi" ? formData.progress : 0,
         shooting: formData.status === "shooting" ? formData.progress : 0,
         editing: formData.status === "editing" ? formData.progress : 0,
         selesai: formData.status === "selesai" ? formData.progress : 0,
-        kirim: formData.status === "kirim" ? formData.progress : 0
+        payment: formData.status === "payment" ? formData.progress : 0
       },
       notes: formData.notes || undefined,
       channel: formData.channel || undefined,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useRef, useState, useEffect, useLayoutEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -8,17 +8,54 @@ gsap.registerPlugin(useGSAP);
 
 interface AnimatedColumnProps {
     children: React.ReactNode;
-    shouldAnimate: boolean; // if total projects > 3
+    shouldAnimate: boolean; // trigger untuk force animation atau bisa dideteksi otomatis
     projectsKey: string; // for dependency tracking
 }
 
 export function AnimatedColumn({ children, shouldAnimate, projectsKey }: AnimatedColumnProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const [hasOverflow, setHasOverflow] = useState(false);
+
+    // Deteksi overflow - cek apakah konten lebih tinggi dari container
+    // Menggunakan useLayoutEffect agar deteksi terjadi sebelum paint
+    useLayoutEffect(() => {
+        const checkOverflow = () => {
+            const container = containerRef.current;
+            const wrapper = wrapperRef.current;
+
+            if (!container || !wrapper) return;
+
+            // Cek apakah wrapper height lebih besar dari container height
+            const isOverflowing = wrapper.scrollHeight > container.clientHeight;
+            setHasOverflow(isOverflowing);
+        };
+
+        // Check immediately
+        checkOverflow();
+
+        // Recheck saat window resize
+        window.addEventListener('resize', checkOverflow);
+
+        // Multiple timeouts untuk memastikan DOM sudah render sempurna
+        const timeout1 = setTimeout(checkOverflow, 100);
+        const timeout2 = setTimeout(checkOverflow, 300);
+        const timeout3 = setTimeout(checkOverflow, 500);
+
+        return () => {
+            window.removeEventListener('resize', checkOverflow);
+            clearTimeout(timeout1);
+            clearTimeout(timeout2);
+            clearTimeout(timeout3);
+        };
+    }, [projectsKey, children]);
+
+    // Determine if should actually animate
+    const actuallyAnimate = shouldAnimate || hasOverflow;
 
     // GSAP Animation for entire column
     useGSAP(() => {
-        if (!shouldAnimate) {
+        if (!actuallyAnimate) {
             return;
         }
 
@@ -68,24 +105,23 @@ export function AnimatedColumn({ children, shouldAnimate, projectsKey }: Animate
 
     }, {
         scope: containerRef,
-        dependencies: [shouldAnimate, projectsKey],
+        dependencies: [actuallyAnimate, projectsKey, hasOverflow],
         revertOnUpdate: true
     });
 
-    if (!shouldAnimate) {
-        return <div className="space-y-3">{children}</div>;
-    }
-
+    // SELALU render dengan refs agar bisa detect overflow
+    // Duplicate children HANYA jika ada overflow
     return (
         <div
             ref={containerRef}
-            className="overflow-hidden max-h-[600px]"
+            className="overflow-hidden h-full"
         >
             <div
                 ref={wrapperRef}
                 className="space-y-3"
             >
                 {children}
+                {actuallyAnimate && children}
             </div>
         </div>
     );

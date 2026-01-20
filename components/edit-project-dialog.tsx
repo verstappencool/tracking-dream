@@ -58,7 +58,8 @@ export function EditProjectDialog({ project, open, onOpenChange, onUpdate }: Edi
     notes: "",
     channel: "",
     airTime: "",
-    editor: ""
+    editor: "",
+    isPaid: false
   });
 
   // Update form when project changes
@@ -80,7 +81,8 @@ export function EditProjectDialog({ project, open, onOpenChange, onUpdate }: Edi
         notes: project.notes || "",
         channel: project.channel || "",
         airTime: project.airTime || "",
-        editor: project.editor || ""
+        editor: project.editor || "",
+        isPaid: project.isPaid || false
       });
     }
   }, [project]);
@@ -138,7 +140,9 @@ export function EditProjectDialog({ project, open, onOpenChange, onUpdate }: Edi
       notes: formData.notes || undefined,
       channel: formData.channel || undefined,
       airTime: formData.airTime || undefined,
-      editor: formData.editor || undefined
+      editor: formData.editor || undefined,
+      isPaid: formData.isPaid,
+      paidAt: formData.isPaid && !project.isPaid ? new Date().toISOString() : project.paidAt
     });
 
     onOpenChange(false);
@@ -355,6 +359,33 @@ export function EditProjectDialog({ project, open, onOpenChange, onUpdate }: Edi
               Progress akan tersimpan per tahapan. Ketika pindah tahapan, progress tahapan ini akan tetap tersimpan.
             </div>
           </div>
+
+          {/* Status Pembayaran - Hanya tampil jika status = payment */}
+          {formData.status === "payment" && (
+            <div className="space-y-2">
+              <Label>Status Pembayaran 💰</Label>
+              <Select
+                value={formData.isPaid ? "paid" : "unpaid"}
+                onValueChange={(value) => setFormData({ ...formData, isPaid: value === "paid" })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih status pembayaran" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unpaid">
+                    <span className="flex items-center gap-2">
+                      <span className="text-red-500">⏳</span> Belum Bayar
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="paid">
+                    <span className="flex items-center gap-2">
+                      <span className="text-emerald-500">✓</span> Sudah Bayar
+                    </span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Notes */}
           <div className="space-y-2">

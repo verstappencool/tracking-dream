@@ -1,0 +1,171 @@
+export interface Client {
+    id: number;
+    name: string;
+    email: string;
+    role?: string;
+}
+
+export interface Investor {
+    id: number;
+    name: string;
+    email: string;
+    role?: string;
+}
+
+export interface User {
+    id: number;
+    name: string;
+    email: string;
+}
+
+export interface ProjectBasicInfo {
+    id: number;
+    title: string;
+}
+
+export interface ProjectMilestoneInfo {
+    id: number;
+    title: string;
+    deadline_date: string;
+}
+
+export interface ProjectInfo {
+    id: number;
+    title: string;
+    type: ProjectType;
+}
+
+export interface Episode {
+    id: number;
+    project_id: number;
+    title: string;
+    episode_number: number;
+    status: string;
+    synopsis: string;
+    airing_date: string;
+    created_at: string;
+    updated_at: string;
+    project: ProjectInfo;
+    milestones: Milestone[];
+}
+
+export interface Milestone {
+    id: number;
+    phase_category: string;
+    work_status: string;
+}
+
+export interface MilestoneDetail {
+    id: number;
+    project_id: number;
+    episode_id: number | null;
+    user_id: number;
+    task_name: string;
+    phase_category: string;
+    work_status: string;
+    honor_amount: string;
+    payment_status: string;
+    created_at: string;
+    updated_at: string;
+    user: User;
+    project: ProjectMilestoneInfo;
+    episode: Episode | null;
+}
+
+export interface Finance {
+    id: number;
+    project_id: number;
+    type: "Income" | "Expense";
+    category: string;
+    amount: string;
+    transaction_date: string;
+    description: string;
+    status: "Received" | "Paid" | "Pending" | "Cancelled";
+    created_at: string;
+    updated_at: string;
+    project: ProjectBasicInfo;
+}
+
+export interface FinanceSummary {
+    totalExpense: number;
+    totalIncome: number;
+}
+
+export interface Asset {
+    id: number;
+    project_id: number;
+    name: string;
+    type: string;
+    file_path: string;
+    file_size: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ProgressStats {
+    "Pre-Production": number;
+    "Production": number;
+    "Post-Production": number;
+}
+
+export type ProjectType = "Movie" | "Series" | "TVC";
+export type GlobalStatus = "Draft" | "In Progress" | "Completed" | "Cancelled";
+
+export interface Project {
+    id: number;
+    title: string;
+    client_id: number | null;
+    client_name: string;
+    investor_id: number | null;
+    investor_name: string;
+    type: ProjectType;
+    total_budget_plan: string;
+    target_income: string;
+    start_date: string;
+    deadline_date: string;
+    description: string;
+    global_status: GlobalStatus;
+    created_at: string;
+    updated_at: string;
+    client: Client | null;
+    investor: Investor | null;
+    episodes: Episode[];
+    milestones: Milestone[];
+}
+
+export interface ProjectsAPIResponse {
+    success: boolean;
+    count: number;
+    data: Project[];
+}
+
+export interface ProjectDetail extends Project {
+    milestones: MilestoneDetail[];
+    finances: Finance[];
+    assets: Asset[];
+    progress_stats: ProgressStats;
+}
+
+export interface ProjectDetailAPIResponse {
+    success: boolean;
+    data: ProjectDetail;
+}
+
+export interface EpisodesAPIResponse {
+    success: boolean;
+    count: number;
+    data: Episode[];
+}
+
+export interface FinancesAPIResponse {
+    success: boolean;
+    count: number;
+    data: Finance[];
+    summary: FinanceSummary;
+}
+
+export interface MilestonesAPIResponse {
+    success: boolean;
+    count: number;
+    data: MilestoneDetail[];
+}

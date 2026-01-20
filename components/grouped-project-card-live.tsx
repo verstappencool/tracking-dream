@@ -1,9 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { TVProject, STATUS_CONFIG } from "@/lib/types";
+import { TVProject, STATUS_CONFIG, ProjectStatus } from "@/lib/types";
 import { cn, getCurrentStageProgress } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { formatDate, formatTime } from "@/utils/time";
+import {
+  STATUS_GRADIENTS,
+  STATUS_ACCENTS,
+  TimestampBadge,
+  ProgressBar,
+  StatusBadge,
+} from "@/app/live/_components";
 
 interface GroupedProjectCardLiveProps {
   title: string;
@@ -11,156 +19,153 @@ interface GroupedProjectCardLiveProps {
   groupIndex?: number;
 }
 
-export function GroupedProjectCardLive({ title, projects, groupIndex = 0 }: GroupedProjectCardLiveProps) {
-  // Always expanded untuk semua kategori (shooting, editing, selesai, g drive/kirim)
-  const [isExpanded, setIsExpanded] = useState(true);
-
-  // Ambil project pertama untuk info utama
-  const mainProject = projects[0];
-  const episodeCount = projects.length;
-  const config = STATUS_CONFIG[mainProject.status];
-
-  // Hitung total progress rata-rata
-  const avgProgress = Math.round(
+// Utility functions
+const calculateAvgProgress = (projects: TVProject[]) =>
+  Math.round(
     projects.reduce((sum, p) => sum + getCurrentStageProgress(p), 0) / projects.length
   );
 
+export function GroupedProjectCardLive({ title, projects, groupIndex = 0 }: GroupedProjectCardLiveProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const mainProject = projects[0];
+  const episodeCount = projects.length;
+  const config = STATUS_CONFIG[mainProject.status];
+  const avgProgress = calculateAvgProgress(projects);
+  const status = mainProject.status as Exclude<ProjectStatus, "pre-produksi">;
+
   return (
-    <div className="bg-slate-800 rounded-lg border border-slate-700">
-      {/* Header Card - Induk */}
+    <div className="bg-slate-800/80 rounded-xl border border-slate-700/50 overflow-hidden backdrop-blur-sm">
+      {/* Header Card */}
       <div
         className={cn(
-          "cursor-pointer p-3 rounded-t-lg",
-          "hover:bg-slate-750 transition-all",
-          isExpanded && "border-b border-slate-700"
+          "cursor-pointer p-4 transition-all bg-gradient-to-r",
+          STATUS_GRADIENTS[status],
+          "hover:brightness-110",
+          isExpanded && "border-b border-slate-700/50"
         )}
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="flex items-start gap-2">
-          <button className="mt-0.5">
+        <div className="flex items-start gap-3">
+          <button className="mt-1 p-1 rounded-md hover:bg-white/10 transition-colors">
             {isExpanded ? (
-              <ChevronDown className="w-4 h-4 text-slate-400" />
+              <ChevronDown className="w-5 h-5 text-slate-300" />
             ) : (
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <ChevronRight className="w-5 h-5 text-slate-300" />
             )}
           </button>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono text-slate-500 bg-slate-700/50 px-2 py-0.5 rounded">#{groupIndex + 1}</span>
-              <h3 className="font-medium text-white text-sm">
+            {/* Project Title */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className={cn("text-xs font-semibold px-2.5 py-1 rounded-md border", STATUS_ACCENTS[status])}>
+                #{groupIndex + 1}
+              </span>
+              <h3 className="font-bold text-white text-base tracking-wide uppercase drop-shadow-sm">
                 {title}
               </h3>
-              <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">
-                {episodeCount} ep
+              <span className={cn("text-xs font-medium px-2.5 py-1 rounded-full border", STATUS_ACCENTS[status])}>
+                {episodeCount} {episodeCount === 1 ? 'Episode' : 'Episodes'}
               </span>
             </div>
 
             {mainProject.description && (
-              <p className="text-xs text-slate-500 mt-1 line-clamp-1">
+              <p className="text-sm text-slate-400 mt-2 line-clamp-1 font-light">
                 {mainProject.description}
               </p>
             )}
 
-            <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
-              {mainProject.channel && <span>📺 {mainProject.channel}</span>}
-              {mainProject.airTime && <span>⏰ {mainProject.airTime}</span>}
-            </div>
+            {/* Channel */}
+            {mainProject.channel && (
+              <div className="flex items-center gap-4 mt-3 text-sm">
+                <span className="flex items-center gap-1.5 text-slate-300 bg-slate-700/50 px-2.5 py-1 rounded-md">
+                  <span>📺</span> {mainProject.channel}
+                </span>
+              </div>
+            )}
 
             {/* Progress rata-rata */}
-            <div className="mt-2">
-              <div className="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
-                <div
-                  className={cn(
-                    "h-full transition-all duration-500 rounded-full",
-                    mainProject.status === "shooting" && "bg-purple-500",
-                    mainProject.status === "editing" && "bg-blue-500",
-                    mainProject.status === "selesai" && "bg-emerald-500",
-                    mainProject.status === "kirim" && "bg-amber-500"
-                  )}
-                  style={{ width: `${avgProgress}%` }}
-                />
+            {mainProject.status !== "payment" && (
+              <div className="mt-3">
+                <ProgressBar status={mainProject.status} progress={avgProgress} size="small" />
               </div>
-              <p className="text-xs text-slate-500 mt-1">Rata-rata: {avgProgress}%</p>
-            </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Episode List - Expanded */}
+      {/* Episode List */}
       {isExpanded && (
-        <div className="bg-slate-900/30 p-2 space-y-1">
-          {projects.map((project, index) => (
-            <div
-              key={project.id}
-              className="bg-slate-800 rounded-lg p-2 border border-slate-700/50"
-            >
-              <div className="flex items-start gap-2">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-slate-500 bg-slate-700/50 px-1.5 py-0.5 rounded">#{index + 1}</span>
-                    <span className="text-xs font-mono text-slate-500">Ep {project.episode}</span>
-                    {project.subtitle && (
-                      <p className="text-xs text-blue-400 font-medium flex-1 truncate">
-                        {project.subtitle}
-                      </p>
-                    )}
-                  </div>
+        <div className="bg-slate-900/40 p-3 space-y-2">
+          {projects.map((project) => {
+            const createdDate = project.createdAt ? new Date(project.createdAt) : null;
 
-                  {/* Editor dan Team */}
-                  <div className="flex items-center gap-3 mt-1 text-xs">
-                    {project.editor && (
-                      <span className="text-purple-400">✂️ {project.editor}</span>
-                    )}
-                    {project.assignedTo && (
-                      <span className="text-slate-500">👥 {project.assignedTo}</span>
-                    )}
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="mt-1.5">
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-slate-500">Progress</span>
-                      <span className={cn("font-medium", config.color)}>
-                        {getCurrentStageProgress(project)}%
+            return (
+              <div
+                key={project.id}
+                className="bg-slate-800/90 rounded-lg p-3 border border-slate-700/50 hover:bg-slate-800 transition-colors"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    {/* Episode Header */}
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
+                      <span className={cn("text-xs font-bold px-2 py-1 rounded border", STATUS_ACCENTS[status])}>
+                        EP {project.episode}
                       </span>
+                      {project.subtitle && (
+                        <h4 className="text-lg font-semibold text-white tracking-wide flex-1">
+                          {project.subtitle}
+                        </h4>
+                      )}
                     </div>
-                    <div className="w-full bg-slate-700 rounded-full h-1 overflow-hidden">
-                      <div
-                        className={cn(
-                          "h-full transition-all duration-500 rounded-full",
-                          project.status === "shooting" && "bg-purple-500",
-                          project.status === "editing" && "bg-blue-500",
-                          project.status === "selesai" && "bg-emerald-500",
-                          project.status === "kirim" && "bg-amber-500"
-                        )}
-                        style={{ width: `${getCurrentStageProgress(project)}%` }}
-                      />
+
+                    {/* Timestamp */}
+                    {createdDate && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <TimestampBadge date={formatDate(createdDate)} time={formatTime(createdDate)} />
+                      </div>
+                    )}
+
+                    {/* Editor dan Team */}
+                    <div className="flex items-center gap-4 mt-2 text-sm">
+                      {project.editor && (
+                        <span className="flex items-center gap-1.5 text-purple-300">
+                          <span>✂️</span> {project.editor}
+                        </span>
+                      )}
+                      {project.assignedTo && (
+                        <span className="flex items-center gap-1.5 text-slate-400">
+                          <span>👥</span> {project.assignedTo}
+                        </span>
+                      )}
                     </div>
+
+                    {/* Progress Bar */}
+                    {project.status !== "payment" && (
+                      <div className="mt-3">
+                        <ProgressBar status={project.status} progress={getCurrentStageProgress(project)} />
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
 
-              {/* Status */}
-              <div className="mt-1.5 pt-1.5 border-t border-slate-700/50 flex justify-between">
-                {project.status === "kirim" && (
-                  <span className="text-xs text-amber-400">✓ Sent</span>
+                {/* Status Badge */}
+                {(project.status === "payment" || project.status === "selesai") && (
+                  <div className="mt-3 pt-2 border-t border-slate-700/50 flex justify-end">
+                    <StatusBadge status={project.status} isPaid={project.isPaid} />
+                  </div>
                 )}
-                {project.status === "selesai" && (
-                  <span className="text-xs text-emerald-400">✓ Done</span>
+
+                {/* Notes */}
+                {project.notes && (
+                  <div className="mt-2 pt-2 border-t border-slate-700/50">
+                    <p className="text-sm text-slate-400 italic line-clamp-2">
+                      💬 {project.notes}
+                    </p>
+                  </div>
                 )}
               </div>
-
-              {/* Notes */}
-              {project.notes && (
-                <div className="mt-1.5 pt-1.5 border-t border-slate-700/50">
-                  <p className="text-xs text-slate-400 italic line-clamp-2">
-                    {project.notes}
-                  </p>
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

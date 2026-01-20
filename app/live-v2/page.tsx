@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { TVProject, STATUS_CONFIG, ProjectStatus } from "@/lib/types";
-import { useLiveProjects } from "@/lib/use-projects";
+import { useApiProjects } from "@/lib/use-api-projects";
 import { GroupedProjectCardLive } from "@/components/grouped-project-card-live";
 import { AnimatedColumn } from "@/components/animated-column";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ChevronRight, Pencil, RefreshCw } from "lucide-react";
+import { Pencil, RefreshCw, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { ProjectCard } from "./_components";
+import { ProjectCard } from "@/app/live/_components";
 import { ProtectedRoute } from "@/components/protected-route";
 
 const STATUSES: ProjectStatus[] = ["pre-produksi", "shooting", "editing", "selesai", "payment"];
@@ -48,13 +48,30 @@ const groupProjectsByTitle = (projectList: TVProject[]) => {
 };
 
 export default function LiveTrackingPage() {
-  const projects = useLiveProjects(1000);
+  const { projects, loading, error } = useApiProjects(5000); // Refresh every 5 seconds
   const currentTime = useCurrentTime();
   const columns = useColumnData(projects);
 
   return (
     <ProtectedRoute allowedRoles={["admin", "producer"]}>
       <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950">
+        {/* Loading State */}
+        {loading && projects.length === 0 && (
+          <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <Loader2 className="w-12 h-12 text-emerald-400 animate-spin mx-auto" />
+              <p className="text-slate-300 text-lg">Loading projects...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="fixed top-4 right-4 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg z-50 max-w-md">
+            <p className="text-sm font-medium">⚠️ {error}</p>
+          </div>
+        )}
+
         {/* Header - Minimalist Design */}
         <header className="bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/50 sticky top-0 z-50">
           <div className="max-w-[1920px] mx-auto px-8 py-5">
@@ -134,29 +151,6 @@ export default function LiveTrackingPage() {
           </div>
         </header>
 
-        {/* Progress Steps */}
-        <div className="bg-slate-900 border-b border-slate-800">
-          <div className="max-w-[1920px] mx-auto px-8">
-            <div className="flex items-center justify-between py-6">
-              {columns.map((col, index) => {
-                const config = STATUS_CONFIG[col.status];
-                return (
-                  <div key={col.status} className="flex items-center flex-1">
-                    <div className="flex flex-col items-center flex-1">
-                      <div className={cn("w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-2 bg-slate-800 border-2", config.borderColor)}>
-                        {config.icon}
-                      </div>
-                      <span className="text-sm font-medium text-white">{config.label}</span>
-                      <span className={cn("text-xs mt-1", config.color)}>{col.projects.length} project</span>
-                    </div>
-                    {index < columns.length - 1 && <ChevronRight className="w-6 h-6 text-slate-600 mx-2" />}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
         {/* Kanban Board */}
         <main className="max-w- mx-auto px-8 py-6">
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5">
@@ -167,12 +161,12 @@ export default function LiveTrackingPage() {
               const projectsKey = col.projects.map(p => p.id).join('-');
 
               return (
-                <div key={col.status} className="rounded-xl p-4 h-[calc(100vh-320px)] bg-slate-900/50 border border-slate-800 flex flex-col">
+                <div key={col.status} className="rounded-xl p-4 h-[calc(100vh-180px)] bg-slate-900/50 border border-slate-800 flex flex-col">
                   {/* Column Header */}
-                  <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-800">
-                    <span className="text-lg">{config.icon}</span>
-                    <span className="font-medium text-white text-sm">{config.label}</span>
-                    <span className="ml-auto text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">
+                  <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-800">
+                    <span className="text-2xl">{config.icon}</span>
+                    <span className="font-semibold text-white text-base uppercase tracking-wide">{config.label}</span>
+                    <span className="ml-auto text-sm text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full font-medium">
                       {col.projects.length}
                     </span>
                   </div>
@@ -219,10 +213,10 @@ export default function LiveTrackingPage() {
           <div className="mt-8 text-center space-y-4">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-full text-xs text-slate-400">
               <RefreshCw className="w-3 h-3 animate-spin" />
-              <span>Auto-refresh aktif • Update real-time</span>
+              <span>Auto-refresh aktif • Update setiap 5 detik dari API</span>
             </div>
             <div className="py-4 border-t border-slate-800">
-              <p className="text-xs text-slate-600">🔒 Mode Read Only • Untuk mengedit, klik tombol "Admin Mode" di atas</p>
+              <p className="text-xs text-slate-600">🔒 Mode Read Only • Data real-time dari {process.env.NEXT_PUBLIC_API_URL}</p>
             </div>
           </div>
         </main>

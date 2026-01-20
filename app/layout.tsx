@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Toaster } from "@/components/ui/sonner"
+import { Providers } from "./providers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TV Production Tracker",
+  title: "Dreamlight Production Tracker",
   description: "Kelola proyek tayangan TV Anda dengan mudah - Tracking dari perencanaan hingga selesai",
 };
 
@@ -28,10 +28,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <main>
-          {children}
-        </main>
-        <Toaster />
+        <Providers>
+          <main>
+            {children}
+          </main>
+        </Providers>
       </body>
     </html>
   );
