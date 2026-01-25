@@ -1,6 +1,7 @@
 "use client";
 
-import { TVProject, STATUS_CONFIG, PRIORITY_CONFIG } from "@/lib/types";
+import { STATUS_CONFIG, PRIORITY_CONFIG } from "@/lib/types";
+import type { TVProject } from "@/types/project";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

@@ -1,91 +1,107 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useRef, useState, useEffect } from "react";
 import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-
-gsap.registerPlugin(useGSAP);
 
 interface AnimatedColumnProps {
     children: React.ReactNode;
-    shouldAnimate: boolean; // if total projects > 3
-    projectsKey: string; // for dependency tracking
+    shouldAnimate: boolean;
+    projectsKey: string;
 }
 
 export function AnimatedColumn({ children, shouldAnimate, projectsKey }: AnimatedColumnProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const rafRef = useRef<number | null>(null);
+    const startTimeRef = useRef<number>(0);
+    const [shouldLoop, setShouldLoop] = useState(false);
+    const [scrollDistance, setScrollDistance] = useState(0);
 
-    // GSAP Animation for entire column
-    useGSAP(() => {
-        if (!shouldAnimate) {
-            return;
-        }
+    useEffect(() => {
+        const container = containerRef.current;
+        const wrapper = wrapperRef.current;
+
+        if (!container || !wrapper) return;
+
+        // Measure
+        const measure = () => {
+            const items = Array.from(wrapper.children);
+            const halfLength = Math.ceil(items.length / 2);
+
+            let totalHeight = 0;
+            for (let i = 0; i < halfLength; i++) {
+                totalHeight += (items[i] as HTMLElement).offsetHeight;
+            }
+            totalHeight += (halfLength - 1) * 12;
+
+            const needsAnimation = shouldAnimate || totalHeight > container.clientHeight;
+            setShouldLoop(needsAnimation);
+            setScrollDistance(totalHeight + 12);
+
+            if (!needsAnimation && wrapper) {
+                wrapper.style.transform = 'translate3d(0, 0, 0)';
+            }
+        };
+
+        requestAnimationFrame(() => {
+            setTimeout(measure, 100);
+        });
+
+    }, [shouldAnimate, projectsKey, children]);
+
+    // PURE requestAnimationFrame approach - paling smooth!
+    useEffect(() => {
+        if (!shouldLoop || scrollDistance === 0) return;
 
         const wrapper = wrapperRef.current;
         if (!wrapper) return;
 
-        // Kill existing animations
-        gsap.killTweensOf(wrapper);
+        const SPEED = 25; // pixels per second
+        const duration = (scrollDistance / SPEED) * 1000; // convert to ms
+        startTimeRef.current = performance.now();
 
-        // Wait a bit for DOM to settle
-        setTimeout(() => {
+        const animate = (currentTime: number) => {
             if (!wrapper) return;
 
-            // Get height of one set of content (karena duplicate untuk infinite effect)
-            const items = wrapper.children;
-            const itemCount = items.length / 2; // dibagi 2 karena di-duplicate
-            let totalHeight = 0;
+            const elapsed = currentTime - startTimeRef.current;
+            const progress = (elapsed % duration) / duration;
+            const yPos = -scrollDistance * progress;
 
-            for (let i = 0; i < itemCount; i++) {
-                totalHeight += (items[i] as HTMLElement).offsetHeight;
+            // Direct transform - bypass GSAP untuk max performance
+            wrapper.style.transform = `translate3d(0, ${yPos}px, 0)`;
+
+            rafRef.current = requestAnimationFrame(animate);
+        };
+
+        rafRef.current = requestAnimationFrame(animate);
+
+        return () => {
+            if (rafRef.current) {
+                cancelAnimationFrame(rafRef.current);
             }
-
-            // Add gap heights (space-y-3 = 0.75rem = 12px per gap)
-            totalHeight += (itemCount - 1) * 12;
-
-            // GSAP Timeline for smooth infinite loop
-            const tl = gsap.timeline({
-                repeat: -1, // infinite loop
-            });
-
-            // Pause 3 detik di awal
-            tl.to({}, { duration: 3 });
-
-            // Animate menggunakan transform translateY
-            tl.to(wrapper, {
-                y: -totalHeight,
-                duration: 25, // 25 detik untuk column (lebih lambat karena lebih banyak content)
-                ease: "none",
-            });
-
-            // Pause 2 detik di akhir
-            tl.to({}, { duration: 2 });
-
-            // Reset position untuk seamless loop
-            tl.set(wrapper, { y: 0 });
-        }, 500);
-
-    }, {
-        scope: containerRef,
-        dependencies: [shouldAnimate, projectsKey],
-        revertOnUpdate: true
-    });
-
-    if (!shouldAnimate) {
-        return <div className="space-y-3">{children}</div>;
-    }
+        };
+    }, [shouldLoop, scrollDistance]);
 
     return (
         <div
             ref={containerRef}
-            className="overflow-hidden max-h-[600px]"
+            className="overflow-hidden h-full"
+            style={{
+                contain: "layout style paint",
+            }}
         >
             <div
                 ref={wrapperRef}
                 className="space-y-3"
+                style={{
+                    transform: "translate3d(0, 0, 0)",
+                    willChange: shouldLoop ? "transform" : "auto",
+                    backfaceVisibility: "hidden",
+                    WebkitBackfaceVisibility: "hidden",
+                }}
             >
                 {children}
+                {shouldLoop && children}
             </div>
         </div>
     );

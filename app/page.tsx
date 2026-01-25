@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { TVProject, STATUS_CONFIG, ProjectStatus } from "@/lib/types";
+import { STATUS_CONFIG } from "@/lib/types";
+import type { TVProject, ProjectStatus } from "@/types/project";
 import { useProjects } from "@/lib/use-projects";
 import { AddProjectDialog } from "@/components/add-project-dialog";
 import { EditProjectDialog } from "@/components/edit-project-dialog";
@@ -33,7 +34,7 @@ export default function Home() {
     const project: TVProject = {
       ...newProject,
       id: Date.now().toString(),
-      createdAt: new Date().toISOString().split("T")[0],
+      createdAt: new Date().toISOString(), // Full datetime dengan waktu
     };
     setProjects([project, ...projects]);
   };
@@ -68,16 +69,18 @@ export default function Home() {
   };
 
   const getNextStatus = (status: ProjectStatus): ProjectStatus | null => {
+    if (status === "pre-produksi") return "shooting";
     if (status === "shooting") return "editing";
     if (status === "editing") return "selesai";
-    if (status === "selesai") return "kirim";
+    if (status === "selesai") return "payment";
     return null;
   };
 
   const getPrevStatus = (status: ProjectStatus): ProjectStatus | null => {
-    if (status === "kirim") return "selesai";
+    if (status === "payment") return "selesai";
     if (status === "selesai") return "editing";
     if (status === "editing") return "shooting";
+    if (status === "shooting") return "pre-produksi";
     return null;
   };
 
@@ -109,7 +112,7 @@ export default function Home() {
     { status: "shooting", projects: projects.filter(p => p.status === "shooting") },
     { status: "editing", projects: projects.filter(p => p.status === "editing") },
     { status: "selesai", projects: projects.filter(p => p.status === "selesai") },
-    { status: "kirim", projects: projects.filter(p => p.status === "kirim") },
+    { status: "payment", projects: projects.filter(p => p.status === "payment") },
   ];
 
   // Group projects by title within each status
@@ -314,7 +317,7 @@ export default function Home() {
                                       project.status === "shooting" && "bg-purple-500",
                                       project.status === "editing" && "bg-blue-500",
                                       project.status === "selesai" && "bg-emerald-500",
-                                      project.status === "kirim" && "bg-amber-500"
+                                      project.status === "payment" && "bg-amber-500"
                                     )}
                                     style={{ width: `${getCurrentStageProgress(project)}%` }}
                                   />
@@ -355,7 +358,7 @@ export default function Home() {
                                 onClick={() => moveProject(project.id, nextStatus)}
                                 className={cn(
                                   "h-7 px-2 text-xs ml-auto",
-                                  nextStatus === "kirim"
+                                  nextStatus === "payment"
                                     ? "text-amber-400 hover:text-amber-300 hover:bg-amber-500/10"
                                     : "text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
                                 )}
@@ -364,8 +367,12 @@ export default function Home() {
                                 <ArrowRight className="w-3 h-3 ml-1" />
                               </Button>
                             )}
-                            {project.status === "kirim" && (
-                              <span className="text-xs text-amber-400 ml-auto">✓ Sent</span>
+                            {project.status === "payment" && (
+                              project.isPaid ? (
+                                <span className="text-xs text-emerald-400 ml-auto">💰 Sudah Bayar</span>
+                              ) : (
+                                <span className="text-xs text-red-400 ml-auto">⏳ Belum Bayar</span>
+                              )
                             )}
                           </div>
                         </div>

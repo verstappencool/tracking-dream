@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TVProject } from "./types";
+import type { TVProject } from "@/types/project";
 import { sampleProjects } from "./data";
 
 const STORAGE_KEY = "dreamlight-projects";
@@ -7,7 +7,7 @@ const STORAGE_KEY = "dreamlight-projects";
 // Get projects from localStorage or use sample data
 export function getStoredProjects(): TVProject[] {
   if (typeof window === "undefined") return sampleProjects;
-  
+
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -16,7 +16,7 @@ export function getStoredProjects(): TVProject[] {
   } catch (error) {
     console.error("Error loading projects:", error);
   }
-  
+
   // Initialize with sample data
   localStorage.setItem(STORAGE_KEY, JSON.stringify(sampleProjects));
   return sampleProjects;
@@ -25,7 +25,7 @@ export function getStoredProjects(): TVProject[] {
 // Save projects to localStorage
 export function saveProjects(projects: TVProject[]) {
   if (typeof window === "undefined") return;
-  
+
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
     // Trigger storage event for other tabs/windows
@@ -51,7 +51,7 @@ export function useProjects() {
     };
 
     window.addEventListener("storage", handleStorageChange);
-    
+
     // Also listen to custom event for same-tab updates
     window.addEventListener("projects-updated", handleStorageChange);
 

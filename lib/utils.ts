@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { TVProject, ProjectStatus, StageProgress } from "./types"
+import type { TVProject, ProjectStatus, StageProgress } from "@/types/project";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -20,10 +20,11 @@ export function updateStageProgress(
   newProgress: number
 ): StageProgress {
   const stageProgress = project.stageProgress || {
+    "pre-produksi": 0,
     shooting: 0,
     editing: 0,
     selesai: 0,
-    kirim: 0
+    payment: 0
   };
 
   return {

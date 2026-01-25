@@ -1,166 +1,244 @@
 "use client";
 
 import { useState } from "react";
-import { TVProject, STATUS_CONFIG } from "@/lib/types";
+import { STATUS_CONFIG } from "@/lib/types";
+import type { TVProject, ProjectStatus } from "@/types/project";
 import { cn, getCurrentStageProgress } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { formatDate, formatTime } from "@/utils/time";
+import {
+  STATUS_GRADIENTS,
+  STATUS_GRADIENTS_LIGHT,
+  STATUS_ACCENTS,
+  STATUS_ACCENTS_LIGHT,
+  TimestampBadge,
+  ProgressBar,
+  StatusBadge,
+  CategoryCards,
+} from "@/app/live-v2/_components";
+import { useMilestones } from "@/lib/use-milestones";
 
 interface GroupedProjectCardLiveProps {
   title: string;
   projects: TVProject[];
   groupIndex?: number;
+  isLightMode?: boolean;
 }
 
-export function GroupedProjectCardLive({ title, projects, groupIndex = 0 }: GroupedProjectCardLiveProps) {
-  // Always expanded untuk semua kategori (shooting, editing, selesai, g drive/kirim)
-  const [isExpanded, setIsExpanded] = useState(true);
-
-  // Ambil project pertama untuk info utama
-  const mainProject = projects[0];
-  const episodeCount = projects.length;
-  const config = STATUS_CONFIG[mainProject.status];
-
-  // Hitung total progress rata-rata
-  const avgProgress = Math.round(
+// Utility functions
+const calculateAvgProgress = (projects: TVProject[]) =>
+  Math.round(
     projects.reduce((sum, p) => sum + getCurrentStageProgress(p), 0) / projects.length
   );
 
+export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLightMode = false }: GroupedProjectCardLiveProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const mainProject = projects[0];
+  const episodeCount = projects.length;
+  const config = STATUS_CONFIG[mainProject.status];
+  const avgProgress = calculateAvgProgress(projects);
+  const status = mainProject.status as Exclude<ProjectStatus, "pre-produksi">;
+
+  // Fetch milestones untuk project ini
+  const { milestones } = useMilestones(mainProject.projectId, 30000);
+
+  const gradients = isLightMode ? STATUS_GRADIENTS_LIGHT : STATUS_GRADIENTS;
+  const accents = isLightMode ? STATUS_ACCENTS_LIGHT : STATUS_ACCENTS;
+
   return (
-    <div className="bg-slate-800 rounded-lg border border-slate-700">
-      {/* Header Card - Induk */}
+    <div className={cn(
+      "rounded-xl overflow-hidden transition-colors",
+      isLightMode
+        ? "bg-white/70 backdrop-blur-xl border-2 border-gray-200 shadow-xl shadow-gray-300/50"
+        : "bg-slate-800/80 border border-slate-700/50 backdrop-blur-sm"
+    )}>
+      {/* Header Card */}
       <div
         className={cn(
-          "cursor-pointer p-3 rounded-t-lg",
-          "hover:bg-slate-750 transition-all",
-          isExpanded && "border-b border-slate-700"
+          "cursor-pointer p-4 transition-all bg-gradient-to-r",
+          gradients[status],
+          isLightMode ? "hover:shadow-lg" : "hover:brightness-110",
+          isExpanded && (isLightMode ? "border-b-2 border-gray-200" : "border-b border-slate-700/50")
         )}
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="flex items-start gap-2">
-          <button className="mt-0.5">
+        <div className="flex items-start gap-3">
+          <button className={cn(
+            "mt-1 p-1 rounded-md transition-colors",
+            isLightMode ? "hover:bg-gray-300" : "hover:bg-white/10"
+          )}>
             {isExpanded ? (
-              <ChevronDown className="w-4 h-4 text-slate-400" />
+              <ChevronDown className={cn("w-6 h-6", isLightMode ? "text-gray-800" : "text-slate-300")} />
             ) : (
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <ChevronRight className={cn("w-6 h-6", isLightMode ? "text-gray-800" : "text-slate-300")} />
             )}
           </button>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono text-slate-500 bg-slate-700/50 px-2 py-0.5 rounded">#{groupIndex + 1}</span>
-              <h3 className="font-medium text-white text-sm">
+            {/* Project Title */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className={cn("text-sm font-bold px-2.5 py-1 rounded-md border-2", accents[status])}>
+                #{groupIndex + 1}
+              </span>
+              <h3 className={cn(
+                "font-extrabold text-lg tracking-wide uppercase",
+                isLightMode ? "text-gray-950 drop-shadow-sm" : "text-white drop-shadow-sm"
+              )}>
                 {title}
               </h3>
-              <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">
-                {episodeCount} ep
+              <span className={cn("text-sm font-bold px-2.5 py-1 rounded-full border-2", accents[status])}>
+                {episodeCount} {episodeCount === 1 ? 'Episode' : 'Episodes'}
               </span>
             </div>
 
             {mainProject.description && (
-              <p className="text-xs text-slate-500 mt-1 line-clamp-1">
+              <p className={cn(
+                "text-sm mt-2 line-clamp-1 font-medium",
+                isLightMode ? "text-gray-700" : "text-slate-400"
+              )}>
                 {mainProject.description}
               </p>
             )}
 
-            <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
-              {mainProject.channel && <span>📺 {mainProject.channel}</span>}
-              {mainProject.airTime && <span>⏰ {mainProject.airTime}</span>}
-            </div>
+            {/* Channel */}
+            {mainProject.channel && (
+              <div className="flex items-center gap-4 mt-3 text-sm">
+                <span className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold",
+                  isLightMode
+                    ? "text-gray-900 bg-gray-200 border-2 border-gray-400"
+                    : "text-slate-300 bg-slate-700/50"
+                )}>
+                  <span>📺</span> {mainProject.channel}
+                </span>
+              </div>
+            )}
 
             {/* Progress rata-rata */}
-            <div className="mt-2">
-              <div className="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
-                <div
-                  className={cn(
-                    "h-full transition-all duration-500 rounded-full",
-                    mainProject.status === "shooting" && "bg-purple-500",
-                    mainProject.status === "editing" && "bg-blue-500",
-                    mainProject.status === "selesai" && "bg-emerald-500",
-                    mainProject.status === "kirim" && "bg-amber-500"
-                  )}
-                  style={{ width: `${avgProgress}%` }}
-                />
+            {mainProject.status !== "payment" && (
+              <div className="mt-3">
+                <ProgressBar status={mainProject.status} progress={avgProgress} size="small" isLightMode={isLightMode} />
               </div>
-              <p className="text-xs text-slate-500 mt-1">Rata-rata: {avgProgress}%</p>
-            </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Episode List - Expanded */}
+      {/* Episode List */}
       {isExpanded && (
-        <div className="bg-slate-900/30 p-2 space-y-1">
-          {projects.map((project, index) => (
-            <div
-              key={project.id}
-              className="bg-slate-800 rounded-lg p-2 border border-slate-700/50"
-            >
-              <div className="flex items-start gap-2">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-slate-500 bg-slate-700/50 px-1.5 py-0.5 rounded">#{index + 1}</span>
-                    <span className="text-xs font-mono text-slate-500">Ep {project.episode}</span>
-                    {project.subtitle && (
-                      <p className="text-xs text-blue-400 font-medium flex-1 truncate">
-                        {project.subtitle}
-                      </p>
-                    )}
-                  </div>
+        <div className={cn(
+          "p-3 space-y-2",
+          isLightMode ? "bg-gray-50/80 backdrop-blur-md" : "bg-slate-900/40"
+        )}>
+          {projects.map((project) => {
+            const createdDate = project.createdAt ? new Date(project.createdAt) : null;
 
-                  {/* Editor dan Team */}
-                  <div className="flex items-center gap-3 mt-1 text-xs">
-                    {project.editor && (
-                      <span className="text-purple-400">✂️ {project.editor}</span>
-                    )}
-                    {project.assignedTo && (
-                      <span className="text-slate-500">👥 {project.assignedTo}</span>
-                    )}
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="mt-1.5">
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-slate-500">Progress</span>
-                      <span className={cn("font-medium", config.color)}>
-                        {getCurrentStageProgress(project)}%
+            return (
+              <div
+                key={project.id}
+                className={cn(
+                  "rounded-lg p-3 transition-colors",
+                  isLightMode
+                    ? "bg-white/90 backdrop-blur-md border-2 border-gray-200 hover:bg-white shadow-md"
+                    : "bg-slate-800/90 border border-slate-700/50 hover:bg-slate-800"
+                )}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    {/* Episode Header */}
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
+                      <span className={cn("text-sm font-bold px-2.5 py-1 rounded border-2", accents[status])}>
+                        EP {project.episode}
                       </span>
+                      {project.subtitle && (
+                        <h4 className={cn(
+                          "text-xl font-bold tracking-wide flex-1",
+                          isLightMode ? "text-gray-950" : "text-white"
+                        )}>
+                          {project.subtitle}
+                        </h4>
+                      )}
                     </div>
-                    <div className="w-full bg-slate-700 rounded-full h-1 overflow-hidden">
-                      <div
-                        className={cn(
-                          "h-full transition-all duration-500 rounded-full",
-                          project.status === "shooting" && "bg-purple-500",
-                          project.status === "editing" && "bg-blue-500",
-                          project.status === "selesai" && "bg-emerald-500",
-                          project.status === "kirim" && "bg-amber-500"
-                        )}
-                        style={{ width: `${getCurrentStageProgress(project)}%` }}
-                      />
+
+                    {/* Timestamp */}
+                    {createdDate && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <TimestampBadge date={formatDate(createdDate)} time={formatTime(createdDate)} isLightMode={isLightMode} />
+                      </div>
+                    )}
+
+                    {/* Editor dan Team */}
+                    <div className="flex items-center gap-4 mt-2 text-sm font-semibold">
+                      {project.editor && (
+                        <span className={cn(
+                          "flex items-center gap-1.5",
+                          isLightMode ? "text-purple-800" : "text-purple-300"
+                        )}>
+                          <span>✂️</span> {project.editor}
+                        </span>
+                      )}
+                      {/* {project.assignedTo && (
+                        <span className={cn(
+                          "flex items-center gap-1.5",
+                          isLightMode ? "text-gray-800" : "text-slate-400"
+                        )}>
+                          <span>👥</span> {project.assignedTo}
+                        </span>
+                      )} */}
                     </div>
+
+                    {/* Progress Bar */}
+                    {project.status !== "payment" && (
+                      <div className="mt-3">
+                        <ProgressBar status={project.status} progress={getCurrentStageProgress(project)} isLightMode={isLightMode} />
+                      </div>
+                    )}
+
+                    {/* Crew by Phase Category */}
+                    {milestones.length > 0 && project.episodeId && (
+                      <div className={cn(
+                        "mt-3 pt-3 border-t",
+                        isLightMode ? "border-gray-200" : "border-slate-700/50"
+                      )}>
+                        <CategoryCards
+                          data={milestones}
+                          episodeId={project.episodeId}
+                          cardStatus={project.status}
+                          compact={true}
+                          isLightMode={isLightMode}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
 
-              {/* Status */}
-              <div className="mt-1.5 pt-1.5 border-t border-slate-700/50 flex justify-between">
-                {project.status === "kirim" && (
-                  <span className="text-xs text-amber-400">✓ Sent</span>
+                {/* Status Badge */}
+                {(project.status === "payment" || project.status === "selesai") && (
+                  <div className={cn(
+                    "mt-3 pt-2 border-t flex justify-end",
+                    isLightMode ? "border-gray-200" : "border-slate-700/50"
+                  )}>
+                    <StatusBadge status={project.status} isPaid={project.isPaid} isLightMode={isLightMode} />
+                  </div>
                 )}
-                {project.status === "selesai" && (
-                  <span className="text-xs text-emerald-400">✓ Done</span>
+
+                {/* Notes */}
+                {project.notes && (
+                  <div className={cn(
+                    "mt-2 pt-2 border-t",
+                    isLightMode ? "border-gray-200" : "border-slate-700/50"
+                  )}>
+                    <p className={cn(
+                      "text-sm italic line-clamp-2",
+                      isLightMode ? "text-gray-500" : "text-slate-400"
+                    )}>
+                      💬 {project.notes}
+                    </p>
+                  </div>
                 )}
               </div>
-
-              {/* Notes */}
-              {project.notes && (
-                <div className="mt-1.5 pt-1.5 border-t border-slate-700/50">
-                  <p className="text-xs text-slate-400 italic line-clamp-2">
-                    {project.notes}
-                  </p>
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

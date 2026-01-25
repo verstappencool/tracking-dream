@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { TVProject, STATUS_CONFIG } from "@/lib/types";
+import { STATUS_CONFIG } from "@/lib/types";
+import type { TVProject, ProjectStatus } from "@/types/project";
 import { cn, getCurrentStageProgress } from "@/lib/utils";
 import {
   ChevronDown,
@@ -20,9 +21,9 @@ interface GroupedProjectCardProps {
   onDragStart: (e: React.DragEvent, project: TVProject) => void;
   onDragEnd: () => void;
   onEdit: (project: TVProject) => void;
-  onMove: (projectId: string, status: any) => void;
-  getNextStatus: (status: any) => any;
-  getPrevStatus: (status: any) => any;
+  onMove: (projectId: string, status: ProjectStatus) => void;
+  getNextStatus: (status: ProjectStatus) => ProjectStatus | null;
+  getPrevStatus: (status: ProjectStatus) => ProjectStatus | null;
 }
 
 export function GroupedProjectCard({
@@ -164,7 +165,7 @@ export function GroupedProjectCard({
                             project.status === "shooting" && "bg-purple-500",
                             project.status === "editing" && "bg-blue-500",
                             project.status === "selesai" && "bg-emerald-500",
-                            project.status === "kirim" && "bg-amber-500"
+                            project.status === "payment" && "bg-amber-500"
                           )}
                           style={{ width: `${getCurrentStageProgress(project)}%` }}
                         />
@@ -198,7 +199,7 @@ export function GroupedProjectCard({
                       className="h-6 px-2 text-xs text-slate-400 hover:text-white hover:bg-slate-700"
                     >
                       <ArrowLeft className="w-3 h-3 mr-1" />
-                      {STATUS_CONFIG[prevStatus].label}
+                      {STATUS_CONFIG[prevStatus as ProjectStatus].label}
                     </Button>
                   )}
                   {nextStatus && (
@@ -211,17 +212,21 @@ export function GroupedProjectCard({
                       }}
                       className={cn(
                         "h-6 px-2 text-xs ml-auto",
-                        nextStatus === "kirim"
+                        nextStatus === "payment"
                           ? "text-amber-400 hover:text-amber-300 hover:bg-amber-500/10"
                           : "text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
                       )}
                     >
-                      {STATUS_CONFIG[nextStatus].label}
+                      {STATUS_CONFIG[nextStatus as ProjectStatus].label}
                       <ArrowRight className="w-3 h-3 ml-1" />
                     </Button>
                   )}
-                  {project.status === "kirim" && (
-                    <span className="text-xs text-amber-400 ml-auto">✓ Sent</span>
+                  {project.status === "payment" && (
+                    project.isPaid ? (
+                      <span className="text-xs text-emerald-400 ml-auto">💰 Sudah Bayar</span>
+                    ) : (
+                      <span className="text-xs text-red-400 ml-auto">⏳ Belum Bayar</span>
+                    )
                   )}
                 </div>
               </div>
