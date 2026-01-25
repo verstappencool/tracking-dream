@@ -1,15 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  TVProject,
-  ProjectStatus,
-  ProjectPriority,
-  STATUS_CONFIG,
-  PRIORITY_CONFIG,
-  GENRE_LIST,
-  StageProgress
-} from "@/lib/types";
+import { STATUS_CONFIG, PRIORITY_CONFIG, GENRE_LIST } from "@/lib/types";
+import type { TVProject, ProjectStatus, ProjectPriority, StageProgress } from "@/types/project";
 import {
   getCurrentStageProgress,
   updateStageProgress,

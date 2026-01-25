@@ -1,15 +1,22 @@
+import { cn } from "@/lib/utils";
+
 interface TimestampBadgeProps {
     date: string;
     time: string;
+    isLightMode?: boolean;
 }
 
-export function TimestampBadge({ date, time }: TimestampBadgeProps) {
+export function TimestampBadge({ date, time, isLightMode = false }: TimestampBadgeProps) {
+    const badgeClass = isLightMode
+        ? "text-gray-700 bg-white/80 backdrop-blur-sm border border-gray-300 font-medium shadow-sm"
+        : "text-slate-500 bg-slate-700/50";
+
     return (
         <>
-            <span className="text-xs text-slate-500 bg-slate-700/50 px-2 py-1 rounded flex items-center gap-1.5">
+            <span className={cn("text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5", badgeClass)}>
                 <span>📅</span> {date}
             </span>
-            <span className="text-xs text-slate-500 bg-slate-700/50 px-2 py-1 rounded flex items-center gap-1.5">
+            <span className={cn("text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5", badgeClass)}>
                 <span>🕐</span> {time}
             </span>
         </>

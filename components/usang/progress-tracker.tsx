@@ -1,6 +1,7 @@
 "use client";
 
-import { TVProject, STATUS_CONFIG, ProjectStatus } from "@/lib/types";
+import { STATUS_CONFIG } from "@/lib/types";
+import type { TVProject, ProjectStatus } from "@/types/project";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
@@ -10,7 +11,7 @@ interface ProgressTrackerProps {
 }
 
 export function ProgressTracker({ project, size = "md" }: ProgressTrackerProps) {
-  const steps: ProjectStatus[] = ["order", "proses", "selesai"];
+  const steps: ProjectStatus[] = ["pre-produksi", "shooting", "editing", "selesai"];
   const currentStep = STATUS_CONFIG[project.status].step;
 
   const sizeClasses = {
@@ -72,7 +73,7 @@ export function ProgressTracker({ project, size = "md" }: ProgressTrackerProps) 
                 {config.label}
               </span>
             </div>
-            
+
             {!isLast && (
               <div className={cn(
                 "flex-1 mx-2 rounded-full transition-all duration-300",

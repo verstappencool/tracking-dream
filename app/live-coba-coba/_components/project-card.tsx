@@ -1,4 +1,5 @@
-import { TVProject, STATUS_CONFIG, ProjectStatus } from "@/lib/types";
+import { STATUS_CONFIG } from "@/lib/types";
+import type { TVProject, ProjectStatus } from "@/types/project";
 import { cn, getCurrentStageProgress } from "@/lib/utils";
 import { formatDate, formatTime } from "@/utils/time";
 import { TimestampBadge } from "./timestamp-badge";

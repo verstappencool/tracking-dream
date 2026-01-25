@@ -1,5 +1,5 @@
 import type { Project, Episode, Milestone, MilestoneDetail } from "@/types/project";
-import type { TVProject, ProjectStatus } from "@/lib/types";
+import type { TVProject, ProjectStatus } from "@/types/project";
 
 /**
  * Map episode status to kanban column status
@@ -87,6 +87,8 @@ export function transformEpisodeToTVProject(
             payment: status === "payment" ? progress : 0,
         },
         isPaid,
+        projectId: episode.project_id,
+        episodeId: episode.id,
         channel: undefined,
         airTime: undefined,
         editor: undefined,
@@ -131,6 +133,8 @@ export function transformProjectToTVProject(project: Project): TVProject {
             selesai: status === "selesai" ? progress : status === "payment" ? 100 : 0,
             payment: status === "payment" ? progress : 0,
         },
+        projectId: project.id,
+        episodeId: undefined,
         channel: undefined,
         airTime: undefined,
         editor: undefined,

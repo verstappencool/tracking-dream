@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { TVProject, STATUS_CONFIG, ProjectStatus } from "@/lib/types";
+import { STATUS_CONFIG } from "@/lib/types";
+import type { TVProject, ProjectStatus } from "@/types/project";
 import { useProjects } from "@/lib/use-projects";
 import { AddProjectDialog } from "@/components/add-project-dialog";
 import { EditProjectDialog } from "@/components/edit-project-dialog";

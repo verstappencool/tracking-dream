@@ -1,4 +1,4 @@
-import { TVProject } from "./types";
+import type { TVProject } from "@/types/project";
 
 export const sampleProjects: TVProject[] = [
   {
@@ -16,6 +16,7 @@ export const sampleProjects: TVProject[] = [
     createdAt: "2026-01-16T09:30:00",
     progress: 60,
     stageProgress: {
+      "pre-produksi": 100,
       shooting: 100,
       editing: 60,
       selesai: 0,

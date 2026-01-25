@@ -1,22 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { TVProject, STATUS_CONFIG, ProjectStatus } from "@/lib/types";
+import { STATUS_CONFIG } from "@/lib/types";
+import type { TVProject, ProjectStatus } from "@/types/project";
 import { cn, getCurrentStageProgress } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { formatDate, formatTime } from "@/utils/time";
 import {
   STATUS_GRADIENTS,
+  STATUS_GRADIENTS_LIGHT,
   STATUS_ACCENTS,
+  STATUS_ACCENTS_LIGHT,
   TimestampBadge,
   ProgressBar,
   StatusBadge,
-} from "@/app/live/_components";
+  CategoryCards,
+} from "@/app/live-v2/_components";
+import { useMilestones } from "@/lib/use-milestones";
 
 interface GroupedProjectCardLiveProps {
   title: string;
   projects: TVProject[];
   groupIndex?: number;
+  isLightMode?: boolean;
 }
 
 // Utility functions
@@ -25,7 +31,7 @@ const calculateAvgProgress = (projects: TVProject[]) =>
     projects.reduce((sum, p) => sum + getCurrentStageProgress(p), 0) / projects.length
   );
 
-export function GroupedProjectCardLive({ title, projects, groupIndex = 0 }: GroupedProjectCardLiveProps) {
+export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLightMode = false }: GroupedProjectCardLiveProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const mainProject = projects[0];
   const episodeCount = projects.length;
@@ -33,43 +39,63 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0 }: Grou
   const avgProgress = calculateAvgProgress(projects);
   const status = mainProject.status as Exclude<ProjectStatus, "pre-produksi">;
 
+  // Fetch milestones untuk project ini
+  const { milestones } = useMilestones(mainProject.projectId, 30000);
+
+  const gradients = isLightMode ? STATUS_GRADIENTS_LIGHT : STATUS_GRADIENTS;
+  const accents = isLightMode ? STATUS_ACCENTS_LIGHT : STATUS_ACCENTS;
+
   return (
-    <div className="bg-slate-800/80 rounded-xl border border-slate-700/50 overflow-hidden backdrop-blur-sm">
+    <div className={cn(
+      "rounded-xl overflow-hidden transition-colors",
+      isLightMode
+        ? "bg-white/70 backdrop-blur-xl border-2 border-gray-200 shadow-xl shadow-gray-300/50"
+        : "bg-slate-800/80 border border-slate-700/50 backdrop-blur-sm"
+    )}>
       {/* Header Card */}
       <div
         className={cn(
           "cursor-pointer p-4 transition-all bg-gradient-to-r",
-          STATUS_GRADIENTS[status],
-          "hover:brightness-110",
-          isExpanded && "border-b border-slate-700/50"
+          gradients[status],
+          isLightMode ? "hover:shadow-lg" : "hover:brightness-110",
+          isExpanded && (isLightMode ? "border-b-2 border-gray-200" : "border-b border-slate-700/50")
         )}
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-start gap-3">
-          <button className="mt-1 p-1 rounded-md hover:bg-white/10 transition-colors">
+          <button className={cn(
+            "mt-1 p-1 rounded-md transition-colors",
+            isLightMode ? "hover:bg-gray-300" : "hover:bg-white/10"
+          )}>
             {isExpanded ? (
-              <ChevronDown className="w-5 h-5 text-slate-300" />
+              <ChevronDown className={cn("w-6 h-6", isLightMode ? "text-gray-800" : "text-slate-300")} />
             ) : (
-              <ChevronRight className="w-5 h-5 text-slate-300" />
+              <ChevronRight className={cn("w-6 h-6", isLightMode ? "text-gray-800" : "text-slate-300")} />
             )}
           </button>
 
           <div className="flex-1 min-w-0">
             {/* Project Title */}
             <div className="flex items-center gap-3 flex-wrap">
-              <span className={cn("text-xs font-semibold px-2.5 py-1 rounded-md border", STATUS_ACCENTS[status])}>
+              <span className={cn("text-sm font-bold px-2.5 py-1 rounded-md border-2", accents[status])}>
                 #{groupIndex + 1}
               </span>
-              <h3 className="font-bold text-white text-base tracking-wide uppercase drop-shadow-sm">
+              <h3 className={cn(
+                "font-extrabold text-lg tracking-wide uppercase",
+                isLightMode ? "text-gray-950 drop-shadow-sm" : "text-white drop-shadow-sm"
+              )}>
                 {title}
               </h3>
-              <span className={cn("text-xs font-medium px-2.5 py-1 rounded-full border", STATUS_ACCENTS[status])}>
+              <span className={cn("text-sm font-bold px-2.5 py-1 rounded-full border-2", accents[status])}>
                 {episodeCount} {episodeCount === 1 ? 'Episode' : 'Episodes'}
               </span>
             </div>
 
             {mainProject.description && (
-              <p className="text-sm text-slate-400 mt-2 line-clamp-1 font-light">
+              <p className={cn(
+                "text-sm mt-2 line-clamp-1 font-medium",
+                isLightMode ? "text-gray-700" : "text-slate-400"
+              )}>
                 {mainProject.description}
               </p>
             )}
@@ -77,7 +103,12 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0 }: Grou
             {/* Channel */}
             {mainProject.channel && (
               <div className="flex items-center gap-4 mt-3 text-sm">
-                <span className="flex items-center gap-1.5 text-slate-300 bg-slate-700/50 px-2.5 py-1 rounded-md">
+                <span className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold",
+                  isLightMode
+                    ? "text-gray-900 bg-gray-200 border-2 border-gray-400"
+                    : "text-slate-300 bg-slate-700/50"
+                )}>
                   <span>📺</span> {mainProject.channel}
                 </span>
               </div>
@@ -86,7 +117,7 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0 }: Grou
             {/* Progress rata-rata */}
             {mainProject.status !== "payment" && (
               <div className="mt-3">
-                <ProgressBar status={mainProject.status} progress={avgProgress} size="small" />
+                <ProgressBar status={mainProject.status} progress={avgProgress} size="small" isLightMode={isLightMode} />
               </div>
             )}
           </div>
@@ -95,24 +126,35 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0 }: Grou
 
       {/* Episode List */}
       {isExpanded && (
-        <div className="bg-slate-900/40 p-3 space-y-2">
+        <div className={cn(
+          "p-3 space-y-2",
+          isLightMode ? "bg-gray-50/80 backdrop-blur-md" : "bg-slate-900/40"
+        )}>
           {projects.map((project) => {
             const createdDate = project.createdAt ? new Date(project.createdAt) : null;
 
             return (
               <div
                 key={project.id}
-                className="bg-slate-800/90 rounded-lg p-3 border border-slate-700/50 hover:bg-slate-800 transition-colors"
+                className={cn(
+                  "rounded-lg p-3 transition-colors",
+                  isLightMode
+                    ? "bg-white/90 backdrop-blur-md border-2 border-gray-200 hover:bg-white shadow-md"
+                    : "bg-slate-800/90 border border-slate-700/50 hover:bg-slate-800"
+                )}
               >
                 <div className="flex items-start gap-3">
                   <div className="flex-1 min-w-0">
                     {/* Episode Header */}
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
-                      <span className={cn("text-xs font-bold px-2 py-1 rounded border", STATUS_ACCENTS[status])}>
+                      <span className={cn("text-sm font-bold px-2.5 py-1 rounded border-2", accents[status])}>
                         EP {project.episode}
                       </span>
                       {project.subtitle && (
-                        <h4 className="text-lg font-semibold text-white tracking-wide flex-1">
+                        <h4 className={cn(
+                          "text-xl font-bold tracking-wide flex-1",
+                          isLightMode ? "text-gray-950" : "text-white"
+                        )}>
                           {project.subtitle}
                         </h4>
                       )}
@@ -121,28 +163,50 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0 }: Grou
                     {/* Timestamp */}
                     {createdDate && (
                       <div className="flex items-center gap-2 mb-2">
-                        <TimestampBadge date={formatDate(createdDate)} time={formatTime(createdDate)} />
+                        <TimestampBadge date={formatDate(createdDate)} time={formatTime(createdDate)} isLightMode={isLightMode} />
                       </div>
                     )}
 
                     {/* Editor dan Team */}
-                    <div className="flex items-center gap-4 mt-2 text-sm">
+                    <div className="flex items-center gap-4 mt-2 text-sm font-semibold">
                       {project.editor && (
-                        <span className="flex items-center gap-1.5 text-purple-300">
+                        <span className={cn(
+                          "flex items-center gap-1.5",
+                          isLightMode ? "text-purple-800" : "text-purple-300"
+                        )}>
                           <span>✂️</span> {project.editor}
                         </span>
                       )}
-                      {project.assignedTo && (
-                        <span className="flex items-center gap-1.5 text-slate-400">
+                      {/* {project.assignedTo && (
+                        <span className={cn(
+                          "flex items-center gap-1.5",
+                          isLightMode ? "text-gray-800" : "text-slate-400"
+                        )}>
                           <span>👥</span> {project.assignedTo}
                         </span>
-                      )}
+                      )} */}
                     </div>
 
                     {/* Progress Bar */}
                     {project.status !== "payment" && (
                       <div className="mt-3">
-                        <ProgressBar status={project.status} progress={getCurrentStageProgress(project)} />
+                        <ProgressBar status={project.status} progress={getCurrentStageProgress(project)} isLightMode={isLightMode} />
+                      </div>
+                    )}
+
+                    {/* Crew by Phase Category */}
+                    {milestones.length > 0 && project.episodeId && (
+                      <div className={cn(
+                        "mt-3 pt-3 border-t",
+                        isLightMode ? "border-gray-200" : "border-slate-700/50"
+                      )}>
+                        <CategoryCards
+                          data={milestones}
+                          episodeId={project.episodeId}
+                          cardStatus={project.status}
+                          compact={true}
+                          isLightMode={isLightMode}
+                        />
                       </div>
                     )}
                   </div>
@@ -150,15 +214,24 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0 }: Grou
 
                 {/* Status Badge */}
                 {(project.status === "payment" || project.status === "selesai") && (
-                  <div className="mt-3 pt-2 border-t border-slate-700/50 flex justify-end">
-                    <StatusBadge status={project.status} isPaid={project.isPaid} />
+                  <div className={cn(
+                    "mt-3 pt-2 border-t flex justify-end",
+                    isLightMode ? "border-gray-200" : "border-slate-700/50"
+                  )}>
+                    <StatusBadge status={project.status} isPaid={project.isPaid} isLightMode={isLightMode} />
                   </div>
                 )}
 
                 {/* Notes */}
                 {project.notes && (
-                  <div className="mt-2 pt-2 border-t border-slate-700/50">
-                    <p className="text-sm text-slate-400 italic line-clamp-2">
+                  <div className={cn(
+                    "mt-2 pt-2 border-t",
+                    isLightMode ? "border-gray-200" : "border-slate-700/50"
+                  )}>
+                    <p className={cn(
+                      "text-sm italic line-clamp-2",
+                      isLightMode ? "text-gray-500" : "text-slate-400"
+                    )}>
                       💬 {project.notes}
                     </p>
                   </div>

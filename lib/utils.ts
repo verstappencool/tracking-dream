@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { TVProject, ProjectStatus, StageProgress } from "./types"
+import type { TVProject, ProjectStatus, StageProgress } from "@/types/project";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

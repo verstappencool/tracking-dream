@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { TVProject, STATUS_CONFIG, ProjectStatus } from "@/lib/types";
+import { STATUS_CONFIG } from "@/lib/types";
+import type { TVProject, ProjectStatus } from "@/types/project";
 import { useLiveProjects } from "@/lib/use-projects";
 import { GroupedProjectCardLive } from "@/components/grouped-project-card-live";
 import { AnimatedColumn } from "@/components/animated-column";

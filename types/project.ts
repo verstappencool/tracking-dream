@@ -111,6 +111,64 @@ export interface ProgressStats {
 export type ProjectType = "Movie" | "Series" | "TVC";
 export type GlobalStatus = "Draft" | "In Progress" | "Completed" | "Cancelled";
 
+// Shared enums / helper types used by the UI
+export type ProjectStatus =
+    | "pre-produksi"
+    | "shooting"
+    | "editing"
+    | "selesai"
+    | "payment";
+
+export type ProjectPriority = "low" | "medium" | "high" | "urgent";
+
+export interface StageProgress {
+    "pre-produksi": number;
+    shooting: number;
+    editing: number;
+    selesai: number;
+    payment: number;
+}
+
+export interface ProductionLog {
+    stage: ProjectStatus;
+    timestamp: string;
+    duration?: number; // in minutes
+    notes?: string;
+}
+
+// TVProject is the UI-friendly shape used across live views (one item per episode/project)
+export interface TVProject {
+    id: string;
+    title: string;
+    subtitle?: string;
+    description: string;
+    status: ProjectStatus;
+    priority: ProjectPriority;
+    genre: string;
+    episode?: number;
+    season?: number;
+    assignedTo: string;
+    dueDate: string;
+    createdAt: string;
+    thumbnail?: string;
+    progress: number;
+    notes?: string;
+    channel?: string;
+    airTime?: string;
+    editor?: string;
+    logs?: ProductionLog[];
+    isArchived?: boolean;
+    archivedAt?: string;
+    archivedBy?: string;
+    isPaid?: boolean;
+    paidAt?: string;
+    // API-related IDs for fetching related data
+    projectId?: number;
+    episodeId?: number;
+    // Optional 
+    stageProgress?: StageProgress;
+}
+
 export interface Project {
     id: number;
     title: string;

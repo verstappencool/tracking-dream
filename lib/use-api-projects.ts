@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TVProject } from "./types";
+import type { TVProject } from "@/types/project";
 import { fetchProjectsWithEpisodes } from "./api/projects";
 import { transformApiDataToTVProjects } from "./api/transformers";
 

@@ -1,4 +1,5 @@
-import { ProjectStatus, STATUS_CONFIG } from "@/lib/types";
+import { STATUS_CONFIG } from "@/lib/types";
+import type { ProjectStatus } from "@/types/project";
 import { cn } from "@/lib/utils";
 import { PROGRESS_GRADIENTS } from "./project-card";
 
