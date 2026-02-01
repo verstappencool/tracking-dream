@@ -71,7 +71,9 @@ export default function LoginPage() {
                             Production Tracking System
                         </p>
                     </div>
-
+                    <p className="text-slate-400 text-sm">
+                        Demo: admin@dreamlight.com / admin123
+                    </p>
                     {/* Login Form */}
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Email Field */}

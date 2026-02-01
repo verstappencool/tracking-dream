@@ -1,5 +1,5 @@
 # Production Tracking System
-
+http://localhost:3000/live-v2
 Sistem live tracking produksi data api backend.
 
 ## 🎯 Features

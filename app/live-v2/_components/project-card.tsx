@@ -59,10 +59,12 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, config, groupIndex, isLightMode = false }: ProjectCardProps) {
     const createdDate = project.createdAt ? new Date(project.createdAt) : null;
-    const progress = getCurrentStageProgress(project);
-
+    
     // Fetch milestones untuk project ini
     const { milestones, loading: milestonesLoading } = useMilestones(project.projectId, 30000);
+    
+    // Hitung progress berdasarkan milestones (jika ada)
+    const progress = getCurrentStageProgress(project, milestones);
 
     const gradients = isLightMode ? STATUS_GRADIENTS_LIGHT : STATUS_GRADIENTS;
     const accents = isLightMode ? STATUS_ACCENTS_LIGHT : STATUS_ACCENTS;

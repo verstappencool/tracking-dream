@@ -36,7 +36,7 @@ export const STATUS_CONFIG: Record<ProjectStatus, {
     icon: "✂️"
   },
   selesai: {
-    label: "SELESAI",
+    label: "PREVIEW",
     color: "text-emerald-600",
     bgColor: "bg-emerald-50",
     borderColor: "border-emerald-200",

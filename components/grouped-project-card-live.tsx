@@ -25,22 +25,20 @@ interface GroupedProjectCardLiveProps {
   isLightMode?: boolean;
 }
 
-// Utility functions
-const calculateAvgProgress = (projects: TVProject[]) =>
-  Math.round(
-    projects.reduce((sum, p) => sum + getCurrentStageProgress(p), 0) / projects.length
-  );
-
 export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLightMode = false }: GroupedProjectCardLiveProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const mainProject = projects[0];
   const episodeCount = projects.length;
   const config = STATUS_CONFIG[mainProject.status];
-  const avgProgress = calculateAvgProgress(projects);
   const status = mainProject.status as Exclude<ProjectStatus, "pre-produksi">;
 
   // Fetch milestones untuk project ini
   const { milestones } = useMilestones(mainProject.projectId, 30000);
+
+  // Hitung average progress dengan mempertimbangkan milestones
+  const avgProgress = Math.round(
+    projects.reduce((sum, p) => sum + getCurrentStageProgress(p, milestones), 0) / projects.length
+  );
 
   const gradients = isLightMode ? STATUS_GRADIENTS_LIGHT : STATUS_GRADIENTS;
   const accents = isLightMode ? STATUS_ACCENTS_LIGHT : STATUS_ACCENTS;
@@ -190,7 +188,7 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLigh
                     {/* Progress Bar */}
                     {project.status !== "payment" && (
                       <div className="mt-3">
-                        <ProgressBar status={project.status} progress={getCurrentStageProgress(project)} isLightMode={isLightMode} />
+                        <ProgressBar status={project.status} progress={getCurrentStageProgress(project, milestones)} isLightMode={isLightMode} />
                       </div>
                     )}
 

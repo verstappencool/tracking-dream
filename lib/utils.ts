@@ -1,13 +1,85 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import type { TVProject, ProjectStatus, StageProgress } from "@/types/project";
+import type { TVProject, ProjectStatus, StageProgress, MilestoneDetail } from "@/types/project";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+// Mapping status ke phase_category untuk perhitungan progress
+const STATUS_TO_PHASE: Record<ProjectStatus, string | null> = {
+  "pre-produksi": "Pre-Production",
+  "shooting": "Production",
+  "editing": "Post-Production",
+  "selesai": null,
+  "payment": null,
+};
+
+// Bobot persentase untuk setiap work_status
+const WORK_STATUS_WEIGHT: Record<string, number> = {
+  "Done": 100,
+  "Waiting Approval": 75,
+  "In Progress": 50,
+  "Pending": 0,
+};
+
+// Helper untuk menghitung progress berdasarkan milestones
+export function calculateProgressFromMilestones(
+  milestones: MilestoneDetail[],
+  status: ProjectStatus,
+  episodeId?: number
+): number {
+  const targetPhase = STATUS_TO_PHASE[status];
+  
+
+  if (!targetPhase) {
+    return 0;
+  }
+
+  // Filter milestones berdasarkan episode dan phase
+  let filteredMilestones = milestones.filter(
+    m => m.phase_category === targetPhase
+  );
+
+  if (episodeId) {
+    filteredMilestones = filteredMilestones.filter(m => m.episode_id === episodeId);
+  }
+
+  // Jika tidak ada milestones, return 0
+  if (filteredMilestones.length === 0) {
+    return 0;
+  }
+
+  // Hitung total bobot dari semua milestones
+  const totalWeight = filteredMilestones.reduce((sum, m) => {
+    const weight = WORK_STATUS_WEIGHT[m.work_status] ?? 0;
+    return sum + weight;
+  }, 0);
+
+  // Hitung persentase (total bobot / (jumlah orang * 100))
+  const maxWeight = filteredMilestones.length * 100;
+  const percentage = Math.round((totalWeight / maxWeight) * 100);
+  
+  return percentage;
+}
+
 // Helper untuk mendapatkan progress dari tahapan yang sedang aktif
-export function getCurrentStageProgress(project: TVProject): number {
+export function getCurrentStageProgress(project: TVProject, milestones?: MilestoneDetail[]): number {
+  // Jika ada milestones, hitung progress dari milestones
+  if (milestones && milestones.length > 0) {
+    const calculatedProgress = calculateProgressFromMilestones(
+      milestones,
+      project.status,
+      project.episodeId
+    );
+    
+    // Jika ada hasil perhitungan, gunakan itu
+    if (calculatedProgress > 0 || project.status === "pre-produksi" || project.status === "shooting" || project.status === "editing") {
+      return calculatedProgress;
+    }
+  }
+
+  // Fallback ke stageProgress dari database
   if (!project.stageProgress) {
     return project.progress;
   }
