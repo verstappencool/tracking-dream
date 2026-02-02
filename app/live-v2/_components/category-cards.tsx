@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { MilestoneDetail } from "@/types/project";
 import type { ProjectStatus } from "@/types/project";
+import { MarqueeText } from "./marquee-text";
 
 interface CategoryCardsProps {
     data: MilestoneDetail[];
@@ -95,16 +96,20 @@ export default function CategoryCards({ data, episodeId, compact = false, isLigh
                 const badgeColor = getWorkStatusBadge(member.work_status, cardStatus || "shooting", isLightMode);
 
                 return (
-                    <span
+                    <div
                         key={member.id}
                         className={cn(
-                            "inline-flex items-center gap-1 px-2.5 py-1 rounded-full border font-semibold text-xs transition-all hover:scale-105",
+                            "inline-flex items-center gap-1 px-2.5 py-1 rounded-full border font-semibold text-xs transition-all hover:scale-105 min-w-[150px]",
                             badgeColor
                         )}
                     >
-                        {member.user.name}
-                        {!compact && isPaid && <span className="text-[10px]">💰</span>}
-                    </span>
+                        <MarqueeText 
+                            userName={member.user.name} 
+                            taskName={member.task_name}
+                            className="flex-1"
+                        />
+                        {!compact && isPaid && <span className="text-[10px] ml-1">💰</span>}
+                    </div>
                 );
             })}
         </div>

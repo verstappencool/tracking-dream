@@ -4,4 +4,5 @@ export { ChannelAirTimeBadges } from "./channel-airtime-badges";
 export { ProgressBar } from "./progress-bar";
 export { StatusBadge } from "./status-badge";
 export { default as CategoryCards } from "./category-cards";
+export { MarqueeText } from "./marquee-text";
 export { formatDate, formatTime } from "@/utils/time";
