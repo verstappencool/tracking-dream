@@ -21,7 +21,7 @@ export function ProgressBar({ status, progress, size = "normal", isLightMode = f
                 <span className={isLightMode ? "text-gray-800" : "text-slate-400"}>
                     {size === "small" ? "Progress Rata-rata" : "Progress"}
                 </span>
-                <span className={cn("font-bold", config.color, size === "normal" && "text-base", isLightMode && "!text-gray-900")}>
+                <span className={cn("font-bold", config.color, size === "normal" && "text-base", isLightMode && "text-gray-900!")}>
                     {progress}%
                 </span>
             </div>

@@ -53,7 +53,7 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLigh
       {/* Header Card */}
       <div
         className={cn(
-          "cursor-pointer p-4 transition-all bg-gradient-to-r",
+          "cursor-pointer p-4 transition-all bg-linear-to-r",
           gradients[status],
           isLightMode ? "hover:shadow-lg" : "hover:brightness-110",
           isExpanded && (isLightMode ? "border-b-2 border-gray-200" : "border-b border-slate-700/50")

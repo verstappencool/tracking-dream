@@ -99,12 +99,12 @@ export default function CategoryCards({ data, episodeId, compact = false, isLigh
                     <div
                         key={member.id}
                         className={cn(
-                            "inline-flex items-center gap-1 px-2.5 py-1 rounded-full border font-semibold text-xs transition-all hover:scale-105 min-w-[150px]",
+                            "inline-flex items-center gap-1 px-2.5 py-1 rounded-full border font-semibold text-xs transition-all hover:scale-105 min-w-37.5",
                             badgeColor
                         )}
                     >
-                        <MarqueeText 
-                            userName={member.user.name} 
+                        <MarqueeText
+                            userName={member.user.name}
                             taskName={member.task_name}
                             className="flex-1"
                         />

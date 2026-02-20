@@ -13,6 +13,7 @@ import Link from "next/link";
 import { ProjectCard } from "@/app/live-v2/_components";
 import { ProtectedRoute } from "@/components/protected-route";
 
+
 const STATUSES: ProjectStatus[] = ["pre-produksi", "shooting", "editing", "selesai", "payment"];
 
 const useCurrentTime = () => {
@@ -57,8 +58,8 @@ export default function LiveTrackingPage() {
   const theme = {
     // Background
     pageBg: isLightMode
-      ? "bg-gradient-to-br from-slate-100 via-blue-50 to-purple-100"
-      : "bg-gradient-to-b from-slate-900 to-slate-950",
+      ? "bg-linear-to-br from-slate-100 via-blue-50 to-purple-100"
+      : "bg-linear-to-b from-slate-900 to-slate-950",
 
     // Header - Glass effect
     headerBg: isLightMode
@@ -129,7 +130,7 @@ export default function LiveTrackingPage() {
   return (
     <ProtectedRoute allowedRoles={["admin", "producer"]}>
       <div className={cn("min-h-screen transition-colors duration-300", theme.pageBg)}>
-     
+
 
         {loading && projects.length === 0 && (
           <div className={cn("fixed inset-0 backdrop-blur-sm z-50 flex items-center justify-center", theme.loadingBg)}>
@@ -149,36 +150,31 @@ export default function LiveTrackingPage() {
 
 
         <header className={cn("backdrop-blur-xl border-b sticky top-0 z-50 transition-colors duration-300", theme.headerBg)}>
-          <div className="max-w-[1920px] mx-auto px-8 py-5">
+          <div className="max-w-480 mx-auto px-8 py-5">
             <div className="flex items-center justify-between">
               {/* Logo & Brand */}
               <div className="flex items-center gap-4">
-                <div className={cn("relative flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br border", theme.logoBg)}>
-                  <svg
-                    viewBox="0 0 24 24"
-                    className={cn("w-7 h-7", theme.logoIcon)}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
-                  {/* Live indicator */}
-                  <span className={cn("absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse shadow-lg", theme.liveDot)} />
-                </div>
                 <div>
+                  <img src="/logohitam.png" alt="" width={200} height={300} />
+                  {/* Live indicator */}
+                  {/* <span className={cn("absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse shadow-lg", theme.liveDot)} /> */}
+
+                </div>
+
+
+                {/* <div>
                   <h1 className={cn("text-xl font-semibold tracking-tight", theme.titleText)}>
                     DREAMLIGHT
                   </h1>
                   <p className={cn("text-xs tracking-widest uppercase", theme.subtitleText)}>
                     Production Board
                   </p>
-                </div>
+                </div> */}
               </div>
 
               {/* Time & Date Display */}
               <div className="flex items-center gap-6">
-    
+
                 <div className="text-right hidden sm:block">
                   <p className={cn("text-sm font-medium", theme.dateText)}>
                     {currentTime.toLocaleDateString("id-ID", {
@@ -224,7 +220,7 @@ export default function LiveTrackingPage() {
                 </Button>
 
                 {/* Admin Button */}
-                <Link href="/">
+                {/* <Link href="/">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -233,7 +229,7 @@ export default function LiveTrackingPage() {
                     <Pencil className="w-4 h-4" />
                     <span className="hidden md:inline text-xs">Admin</span>
                   </Button>
-                </Link>
+                </Link> */}
               </div>
             </div>
           </div>

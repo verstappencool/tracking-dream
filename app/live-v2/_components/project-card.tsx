@@ -43,10 +43,10 @@ export const STATUS_ACCENTS_LIGHT: Record<ProjectStatus, string> = {
 };
 
 export const PROGRESS_GRADIENTS: Record<ProjectStatus, string> = {
-    "pre-produksi": "bg-gradient-to-r from-pink-500 to-pink-400",
-    shooting: "bg-gradient-to-r from-purple-500 to-purple-400",
-    editing: "bg-gradient-to-r from-blue-500 to-blue-400",
-    selesai: "bg-gradient-to-r from-emerald-500 to-emerald-400",
+    "pre-produksi": "bg-linear-to-r from-pink-500 to-pink-400",
+    shooting: "bg-linear-to-r from-purple-500 to-purple-400",
+    editing: "bg-linear-to-r from-blue-500 to-blue-400",
+    selesai: "bg-linear-to-r from-emerald-500 to-emerald-400",
     payment: "",
 };
 
@@ -59,10 +59,10 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, config, groupIndex, isLightMode = false }: ProjectCardProps) {
     const createdDate = project.createdAt ? new Date(project.createdAt) : null;
-    
+
     // Fetch milestones untuk project ini
     const { milestones, loading: milestonesLoading } = useMilestones(project.projectId, 30000);
-    
+
     // Hitung progress berdasarkan milestones (jika ada)
     const progress = getCurrentStageProgress(project, milestones);
 
@@ -72,7 +72,7 @@ export function ProjectCard({ project, config, groupIndex, isLightMode = false }
     return (
         <div className={cn(
             "rounded-xl overflow-hidden border transition-all",
-            "bg-gradient-to-br",
+            "bg-linear-to-br",
             gradients[project.status],
             isLightMode ? "hover:shadow-lg" : "backdrop-blur-sm hover:brightness-110"
         )}>
@@ -149,12 +149,12 @@ export function ProjectCard({ project, config, groupIndex, isLightMode = false }
                     </div>
                 )}
 
-         
+
 
                 {/* Status Badge (ketika ada milestones) */}
                 {milestones.length > 0 && (
                     <div className="flex justify-end mt-2">
-                       
+
                         <StatusBadge status={project.status} isPaid={project.isPaid} isLightMode={isLightMode} />
                     </div>
                 )}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import gsap from "gsap";
 
 interface AnimatedColumnProps {
     children: React.ReactNode;
@@ -9,99 +8,105 @@ interface AnimatedColumnProps {
     projectsKey: string;
 }
 
+/** pixels per second the list travels when scrolling */
+const SCROLL_SPEED = 40;
+/** milliseconds to pause at the top before each scroll cycle */
+const PAUSE_TOP_MS = 2500;
+
 export function AnimatedColumn({ children, shouldAnimate, projectsKey }: AnimatedColumnProps) {
     const containerRef = useRef<HTMLDivElement>(null);
-    const wrapperRef = useRef<HTMLDivElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
     const rafRef = useRef<number | null>(null);
-    const startTimeRef = useRef<number>(0);
-    const [shouldLoop, setShouldLoop] = useState(false);
-    const [scrollDistance, setScrollDistance] = useState(0);
+    const [needsScroll, setNeedsScroll] = useState(false);
+    const [scrollHeight, setScrollHeight] = useState(0);
 
+    // Reset & measure whenever the set of projects changes.
+    // At the time this runs, only a single copy of children is rendered
+    // (because needsScroll is reset to false first), so content.scrollHeight
+    // equals the true height of one full list — which is exactly what we
+    // need for the seamless-loop math.
     useEffect(() => {
+        setNeedsScroll(false);
+        setScrollHeight(0);
+
         const container = containerRef.current;
-        const wrapper = wrapperRef.current;
+        const content = contentRef.current;
+        if (!container || !content) return;
 
-        if (!container || !wrapper) return;
-
-        // Measure
+        let raf: number;
         const measure = () => {
-            const items = Array.from(wrapper.children);
-            const halfLength = Math.ceil(items.length / 2);
-
-            let totalHeight = 0;
-            for (let i = 0; i < halfLength; i++) {
-                totalHeight += (items[i] as HTMLElement).offsetHeight;
-            }
-            totalHeight += (halfLength - 1) * 12;
-
-            const needsAnimation = shouldAnimate || totalHeight > container.clientHeight;
-            setShouldLoop(needsAnimation);
-            setScrollDistance(totalHeight + 12);
-
-            if (!needsAnimation && wrapper) {
-                wrapper.style.transform = 'translate3d(0, 0, 0)';
+            const containerH = container.clientHeight;
+            const contentH = content.scrollHeight;
+            const overflows = shouldAnimate || contentH > containerH;
+            if (overflows) {
+                setScrollHeight(contentH);
+                setNeedsScroll(true);
             }
         };
 
-        requestAnimationFrame(() => {
-            setTimeout(measure, 100);
-        });
+        // Wait for fonts/images to settle before measuring
+        raf = requestAnimationFrame(() => setTimeout(measure, 150));
+        return () => cancelAnimationFrame(raf);
+    }, [projectsKey, shouldAnimate]);
 
-    }, [shouldAnimate, projectsKey, children]);
-
-    // PURE requestAnimationFrame approach - paling smooth!
+    // Seamless vertical scroll loop via requestAnimationFrame.
+    // When needsScroll is true the JSX renders children twice, so the total
+    // DOM height is 2 × scrollHeight.  We animate y from 0 → -scrollHeight;
+    // at that point the second copy is perfectly aligned with where the first
+    // started, so the modulo wrap is invisible to the viewer.
     useEffect(() => {
-        if (!shouldLoop || scrollDistance === 0) return;
+        if (!needsScroll || scrollHeight === 0) {
+            if (contentRef.current) {
+                contentRef.current.style.transform = "translate3d(0,0,0)";
+            }
+            return;
+        }
 
-        const wrapper = wrapperRef.current;
-        if (!wrapper) return;
+        const content = contentRef.current;
+        if (!content) return;
 
-        const SPEED = 25; // pixels per second
-        const duration = (scrollDistance / SPEED) * 1000; // convert to ms
-        startTimeRef.current = performance.now();
+        const scrollDuration = (scrollHeight / SCROLL_SPEED) * 1000; // ms
+        const totalCycle = PAUSE_TOP_MS + scrollDuration;
+        const startTime = performance.now();
 
-        const animate = (currentTime: number) => {
-            if (!wrapper) return;
-
-            const elapsed = currentTime - startTimeRef.current;
-            const progress = (elapsed % duration) / duration;
-            const yPos = -scrollDistance * progress;
-
-            // Direct transform - bypass GSAP untuk max performance
-            wrapper.style.transform = `translate3d(0, ${yPos}px, 0)`;
-
+        const animate = (now: number) => {
+            const elapsed = (now - startTime) % totalCycle;
+            // Hold at y=0 during the pause window, then scroll down
+            const scrollElapsed = Math.max(0, elapsed - PAUSE_TOP_MS);
+            const progress = scrollElapsed / scrollDuration;
+            const y = -(scrollHeight * progress);
+            content.style.transform = `translate3d(0,${y}px,0)`;
             rafRef.current = requestAnimationFrame(animate);
         };
 
         rafRef.current = requestAnimationFrame(animate);
 
         return () => {
-            if (rafRef.current) {
+            if (rafRef.current !== null) {
                 cancelAnimationFrame(rafRef.current);
+                rafRef.current = null;
             }
         };
-    }, [shouldLoop, scrollDistance]);
+    }, [needsScroll, scrollHeight]);
 
     return (
         <div
             ref={containerRef}
             className="overflow-hidden h-full"
-            style={{
-                contain: "layout style paint",
-            }}
         >
             <div
-                ref={wrapperRef}
+                ref={contentRef}
                 className="space-y-3"
                 style={{
-                    transform: "translate3d(0, 0, 0)",
-                    willChange: shouldLoop ? "transform" : "auto",
+                    transform: "translate3d(0,0,0)",
+                    willChange: needsScroll ? "transform" : "auto",
                     backfaceVisibility: "hidden",
-                    WebkitBackfaceVisibility: "hidden",
                 }}
             >
                 {children}
-                {shouldLoop && children}
+                {/* Second copy — only mounted when scrolling is needed, provides
+                    the seamless "wrap-around" so the loop looks continuous. */}
+                {needsScroll && children}
             </div>
         </div>
     );

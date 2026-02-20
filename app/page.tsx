@@ -129,13 +129,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950">
+    <div className="min-h-screen bg-linear-to-b from-slate-900 to-slate-950">
       {/* Header */}
       <header className="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg">
+              <div className="p-2 bg-linear-to-br from-blue-500 to-indigo-500 rounded-lg">
                 <Tv className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -216,7 +216,7 @@ export default function Home() {
               <div
                 key={col.status}
                 className={cn(
-                  "rounded-xl p-4 min-h-[400px] transition-all flex flex-col",
+                  "rounded-xl p-4 min-h-100 transition-all flex flex-col",
                   "bg-slate-900/50 border border-slate-800",
                   draggedProject && draggedProject.status !== col.status && "border-dashed border-slate-600 bg-slate-800/30"
                 )}
@@ -224,7 +224,7 @@ export default function Home() {
                 onDrop={(e) => handleDrop(e, col.status)}
               >
                 {/* Column Header */}
-                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-800 flex-shrink-0">
+                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-800 shrink-0">
                   <span className="text-lg">{config.icon}</span>
                   <span className="font-medium text-white text-sm">{config.label}</span>
                   <span className="ml-auto text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">
