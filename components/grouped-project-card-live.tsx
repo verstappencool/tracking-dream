@@ -85,8 +85,8 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLigh
                   mainProject.genre === "Movie"
                     ? isLightMode ? "bg-amber-100 text-amber-700 border-amber-300" : "bg-amber-500/15 text-amber-300 border-amber-500/30"
                     : mainProject.genre === "Series"
-                    ? isLightMode ? "bg-violet-100 text-violet-700 border-violet-300" : "bg-violet-500/15 text-violet-300 border-violet-500/30"
-                    : isLightMode ? "bg-cyan-100 text-cyan-700 border-cyan-300" : "bg-cyan-500/15 text-cyan-300 border-cyan-500/30"
+                      ? isLightMode ? "bg-violet-100 text-violet-700 border-violet-300" : "bg-violet-500/15 text-violet-300 border-violet-500/30"
+                      : isLightMode ? "bg-cyan-100 text-cyan-700 border-cyan-300" : "bg-cyan-500/15 text-cyan-300 border-cyan-500/30"
                 )}>
                   {mainProject.genre === "Movie" ? "🎬" : mainProject.genre === "Series" ? "🎞️" : "📡"} {mainProject.genre}
                 </span>
