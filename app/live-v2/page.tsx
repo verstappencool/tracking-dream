@@ -248,9 +248,9 @@ export default function LiveTrackingPage() {
                 <div key={col.status} className={cn("rounded-xl p-4 h-[calc(100vh-180px)] border flex flex-col transition-colors duration-300", theme.columnBg)}>
                   {/* Column Header */}
                   <div className={cn("flex items-center gap-3 mb-4 pb-3 border-b", theme.columnHeader)}>
-                    <span className="text-2xl">{config.icon}</span>
-                    <span className={cn("font-semibold text-base uppercase tracking-wide", theme.columnLabel)}>{config.label}</span>
-                    <span className={cn("ml-auto text-sm px-2.5 py-1 rounded-full font-medium", theme.columnCount)}>
+                    <span className="text-3xl">{config.icon}</span>
+                    <span className={cn("font-bold text-lg uppercase tracking-wide", theme.columnLabel)}>{config.label}</span>
+                    <span className={cn("ml-auto text-base px-3 py-1 rounded-full font-bold", theme.columnCount)}>
                       {col.projects.length}
                     </span>
                   </div>

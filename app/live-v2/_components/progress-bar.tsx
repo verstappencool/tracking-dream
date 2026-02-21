@@ -12,8 +12,8 @@ interface ProgressBarProps {
 
 export function ProgressBar({ status, progress, size = "normal", isLightMode = false }: ProgressBarProps) {
     const config = STATUS_CONFIG[status];
-    const heightClass = size === "small" ? "h-2.5" : "h-3";
-    const textSize = size === "small" ? "text-xs font-semibold" : "text-sm font-bold";
+    const heightClass = size === "small" ? "h-2.5" : "h-3.5";
+    const textSize = size === "small" ? "text-xs font-semibold" : "text-base font-bold";
 
     return (
         <div className={size === "small" ? "" : "space-y-1.5"}>

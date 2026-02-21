@@ -124,7 +124,7 @@ export function transformProjectToTVProject(project: Project): TVProject {
         season: undefined,
         assignedTo: project.client_name || "Internal Team",
         dueDate: project.deadline_date,
-        createdAt: project.created_at,
+        createdAt: project.createdAt,
         progress,
         stageProgress: {
             "pre-produksi": status === "pre-produksi" ? progress : status === "shooting" || status === "editing" || status === "selesai" || status === "payment" ? 100 : 0,

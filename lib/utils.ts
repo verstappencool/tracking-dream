@@ -7,11 +7,11 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Mapping status ke phase_category untuk perhitungan progress
-const STATUS_TO_PHASE: Record<ProjectStatus, string | null> = {
+export const STATUS_TO_PHASE: Record<ProjectStatus, string | null> = {
   "pre-produksi": "Pre-Production",
   "shooting": "Production",
   "editing": "Post-Production",
-  "selesai": null,
+  "selesai": "Post-Production",
   "payment": null,
 };
 
@@ -30,7 +30,7 @@ export function calculateProgressFromMilestones(
   episodeId?: number
 ): number {
   const targetPhase = STATUS_TO_PHASE[status];
-  
+
 
   if (!targetPhase) {
     return 0;
@@ -59,7 +59,7 @@ export function calculateProgressFromMilestones(
   // Hitung persentase (total bobot / (jumlah orang * 100))
   const maxWeight = filteredMilestones.length * 100;
   const percentage = Math.round((totalWeight / maxWeight) * 100);
-  
+
   return percentage;
 }
 
@@ -72,7 +72,7 @@ export function getCurrentStageProgress(project: TVProject, milestones?: Milesto
       project.status,
       project.episodeId
     );
-    
+
     // Jika ada hasil perhitungan, gunakan itu
     if (calculatedProgress > 0 || project.status === "pre-produksi" || project.status === "shooting" || project.status === "editing") {
       return calculatedProgress;
