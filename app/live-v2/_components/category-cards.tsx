@@ -54,6 +54,15 @@ const WORK_STATUS_CONFIG = {
     },
 } as const;
 
+// Role yang relevan per status kolom kanban (null = tampilkan semua role)
+const ROLE_FOR_STATUS: Partial<Record<ProjectStatus, string[] | null>> = {
+    "pre-produksi": null, // semua role ditampilkan
+    "shooting": ["crew"],
+    "editing": ["crew"],
+    "selesai": ["crew"],
+    "payment": ["crew"],
+};
+
 // Sort order: active work first
 const STATUS_ORDER = ["In Progress", "Waiting Approval", "Pending", "Done"];
 
@@ -73,10 +82,22 @@ export default function CategoryCards({ data, episodeId, compact = false, isLigh
         : data;
 
     // Filter by phase category from card status
-    if (cardStatus) {
+    // pre-produksi: skip filter phase, tampilkan semua milestone episode (semua role)
+    if (cardStatus && cardStatus !== "pre-produksi") {
         const targetPhase = STATUS_TO_PHASE[cardStatus];
         if (targetPhase) {
             filteredData = filteredData.filter((m) => m.phase_category === targetPhase);
+        }
+    }
+
+    // Filter berdasarkan role user sesuai kolom status
+    if (cardStatus) {
+        const allowedRoles = ROLE_FOR_STATUS[cardStatus];
+        // null = tampilkan semua, array = filter by role
+        if (allowedRoles !== undefined && allowedRoles !== null && allowedRoles.length > 0) {
+            filteredData = filteredData.filter(
+                (m) => !m.user.role || allowedRoles.includes(m.user.role)
+            );
         }
     }
 

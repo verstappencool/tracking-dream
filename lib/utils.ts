@@ -45,6 +45,15 @@ export function calculateProgressFromMilestones(
     filteredMilestones = filteredMilestones.filter(m => m.episode_id === episodeId);
   }
 
+  // Untuk pre-produksi: progress hanya dihitung dari milestone milik producer
+  if (status === "pre-produksi") {
+    const producerMilestones = filteredMilestones.filter(m => m.user?.role === "producer");
+    // Jika ada milestone producer, gunakan itu; jika tidak ada, fallback ke semua (backward compatible)
+    if (producerMilestones.length > 0) {
+      filteredMilestones = producerMilestones;
+    }
+  }
+
   // Jika tidak ada milestones, return 0
   if (filteredMilestones.length === 0) {
     return 0;

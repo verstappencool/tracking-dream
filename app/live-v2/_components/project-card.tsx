@@ -127,6 +127,18 @@ export function ProjectCard({ project, config, groupIndex, isLightMode = false }
                         </span>
                     )}
 
+                    {/* Episode number badge — hanya untuk Series */}
+                    {project.genre === "Series" && project.episode && (
+                        <span className={cn(
+                            "text-xs font-bold px-2 py-0.5 rounded border shrink-0",
+                            isLightMode
+                                ? "bg-slate-100 text-slate-600 border-slate-300"
+                                : "bg-slate-700/50 text-slate-300 border-slate-600/50"
+                        )}>
+                            Eps {project.episode}
+                        </span>
+                    )}
+
                     <span className={cn(
                         "text-sm font-semibold uppercase tracking-wide truncate",
                         isLightMode ? "text-gray-500" : "text-slate-400"
