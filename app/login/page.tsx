@@ -136,15 +136,6 @@ export default function LoginPage() {
                     </div>
                 </div>
             </Card>
-
-            {/* Demo Credentials Info */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center">
-                <div className="bg-slate-800/80 backdrop-blur-sm border border-slate-700/50 rounded-lg px-4 py-2">
-                    <p className="text-xs text-slate-400">
-                        Demo: admin@dreamlight.com / admin123
-                    </p>
-                </div>
-            </div>
         </div>
     );
 }
