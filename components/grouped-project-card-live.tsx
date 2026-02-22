@@ -53,7 +53,7 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLigh
       {/* Header Card */}
       <div
         className={cn(
-          "cursor-pointer p-4 transition-all bg-gradient-to-r",
+          "cursor-pointer p-4 transition-all bg-linear-to-r",
           gradients[status],
           isLightMode ? "hover:shadow-lg" : "hover:brightness-110",
           isExpanded && (isLightMode ? "border-b-2 border-gray-200" : "border-b border-slate-700/50")
@@ -74,10 +74,23 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLigh
 
           <div className="flex-1 min-w-0">
             {/* Project Title */}
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className={cn("text-sm font-bold px-2.5 py-1 rounded-md border-2", accents[status])}>
                 #{groupIndex + 1}
               </span>
+              {/* Type badge */}
+              {mainProject.genre && (
+                <span className={cn(
+                  "text-xs font-bold px-2 py-0.5 rounded border uppercase tracking-wide shrink-0",
+                  mainProject.genre === "Movie"
+                    ? isLightMode ? "bg-amber-100 text-amber-700 border-amber-300" : "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                    : mainProject.genre === "Series"
+                      ? isLightMode ? "bg-violet-100 text-violet-700 border-violet-300" : "bg-violet-500/15 text-violet-300 border-violet-500/30"
+                      : isLightMode ? "bg-cyan-100 text-cyan-700 border-cyan-300" : "bg-cyan-500/15 text-cyan-300 border-cyan-500/30"
+                )}>
+                  {mainProject.genre === "Movie" ? "🎬" : mainProject.genre === "Series" ? "🎞️" : "📡"} {mainProject.genre}
+                </span>
+              )}
               <h3 className={cn(
                 "font-extrabold text-lg tracking-wide uppercase",
                 isLightMode ? "text-gray-950 drop-shadow-sm" : "text-white drop-shadow-sm"

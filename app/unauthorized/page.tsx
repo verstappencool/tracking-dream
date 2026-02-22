@@ -6,7 +6,7 @@ import { ShieldAlert, Home } from "lucide-react";
 
 export default function UnauthorizedPage() {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
             <div className="text-center">
                 <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-500/10 border border-red-500/20 mb-6">
                     <ShieldAlert className="w-10 h-10 text-red-400" />

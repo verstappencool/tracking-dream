@@ -12,10 +12,29 @@ export interface Investor {
     role?: string;
 }
 
+/** Producer info embedded in Project list response */
+export interface Producer {
+    id: number;
+    name: string;
+    email: string;
+}
+
+/**
+ * Partial episode shape returned inside /projects list.
+ * Full Episode (with synopsis, milestones, etc.) comes from /episodes endpoint.
+ */
+export interface EpisodeSummary {
+    id: number;
+    title: string;
+    episode_number: number;
+    status: string;
+}
+
 export interface User {
     id: number;
     name: string;
     email: string;
+    role?: string;
 }
 
 export interface ProjectBasicInfo {
@@ -176,6 +195,8 @@ export interface Project {
     client_name: string;
     investor_id: number | null;
     investor_name: string;
+    producer_id: number | null;
+    producer_name: string | null;
     type: ProjectType;
     total_budget_plan: string;
     target_income: string;
@@ -183,17 +204,23 @@ export interface Project {
     deadline_date: string;
     description: string;
     global_status: GlobalStatus;
-    created_at: string;
-    updated_at: string;
+    /** API returns camelCase */
+    createdAt: string;
+    updatedAt: string;
     client: Client | null;
     investor: Investor | null;
-    episodes: Episode[];
+    producer: Producer | null;
+    /** Partial episodes — only id, title, episode_number, status */
+    episodes: EpisodeSummary[];
     milestones: Milestone[];
 }
 
 export interface ProjectsAPIResponse {
     success: boolean;
     count: number;
+    total: number;
+    page: number;
+    totalPages: number;
     data: Project[];
 }
 
