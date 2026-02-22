@@ -1,6 +1,6 @@
 import { STATUS_CONFIG } from "@/lib/types";
 import type { TVProject, ProjectStatus } from "@/types/project";
-import { cn, getCurrentStageProgress } from "@/lib/utils";
+import { cn, getCurrentStageProgress, STATUS_TO_PHASE } from "@/lib/utils";
 import { formatDate, formatTime } from "@/utils/time";
 import { TimestampBadge } from "./timestamp-badge";
 import { ProgressBar } from "./progress-bar";
@@ -61,6 +61,17 @@ export function ProjectCard({ project, config, groupIndex, isLightMode = false }
 
     const { milestones } = useMilestones(project.projectId, 30000);
     const progress = getCurrentStageProgress(project, milestones);
+
+    // "Master ready": semua milestone yang relevan untuk episode/fase ini sudah Done
+    const targetPhase = STATUS_TO_PHASE[project.status];
+    const relevantMilestones = milestones.filter(
+        (m) =>
+            (!project.episodeId || m.episode_id === project.episodeId) &&
+            (!targetPhase || m.phase_category === targetPhase)
+    );
+    const masterReady =
+        relevantMilestones.length > 0 &&
+        relevantMilestones.every((m) => m.work_status === "Done");
 
     const gradients = isLightMode ? STATUS_GRADIENTS_LIGHT : STATUS_GRADIENTS;
     const accents = isLightMode ? STATUS_ACCENTS_LIGHT : STATUS_ACCENTS;
@@ -176,7 +187,7 @@ export function ProjectCard({ project, config, groupIndex, isLightMode = false }
                 )}
 
                 {/* ── CREW section ── */}
-                {milestones.length > 0 && project.episodeId && (
+                {!masterReady && milestones.length > 0 && project.episodeId && (
                     <div className={cn(
                         "mt-3 pt-3 border-t",
                         isLightMode ? "border-gray-200" : "border-slate-700/50"
