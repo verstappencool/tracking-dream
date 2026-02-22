@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, memo } from "react";
 import { STATUS_CONFIG } from "@/lib/types";
 import type { TVProject, ProjectStatus } from "@/types/project";
 import { useApiProjects } from "@/lib/use-api-projects";
@@ -8,24 +8,62 @@ import { GroupedProjectCardLive } from "@/components/grouped-project-card-live";
 import { AnimatedColumn } from "@/components/animated-column";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Pencil, RefreshCw, Loader2, Sun, Moon } from "lucide-react";
-import Link from "next/link";
+import { RefreshCw, Loader2, Sun, Moon } from "lucide-react";
 import { ProjectCard } from "@/app/live-v2/_components";
 import { ProtectedRoute } from "@/components/protected-route";
 
 
 const STATUSES: ProjectStatus[] = ["pre-produksi", "shooting", "editing", "selesai", "payment"];
 
-const useCurrentTime = () => {
-  const [currentTime, setCurrentTime] = useState(new Date());
-
+/**
+ * Clock terisolasi — hanya komponen ini yang re-render setiap detik.
+ * Dengan begitu AnimatedColumn & kartu-kartu TIDAK terganggu tiap detik.
+ */
+const LiveClock = memo(function LiveClock({
+  timeClassName,
+  weekdayClassName,
+  subtitleClassName,
+  containerClassName,
+  liveBgClassName,
+  liveTextClassName,
+  liveDotClassName,
+}: {
+  timeClassName: string;
+  weekdayClassName: string;
+  subtitleClassName: string;
+  containerClassName: string;
+  liveBgClassName: string;
+  liveTextClassName: string;
+  liveDotClassName: string;
+}) {
+  const [now, setNow] = useState(() => new Date());
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
   }, []);
 
-  return currentTime;
-};
+  return (
+    <div className="flex items-center gap-6">
+      <div className="text-right hidden sm:block">
+        <p className={cn("text-sm font-medium", weekdayClassName)}>
+          {now.toLocaleDateString("id-ID", { weekday: "long" })}
+        </p>
+        <p className={cn("text-xs", subtitleClassName)}>
+          {now.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+        </p>
+      </div>
+      <div className={cn("flex items-center gap-3 px-4 py-2 rounded-xl border transition-colors duration-300", containerClassName)}>
+        <div className={cn("text-2xl font-mono font-semibold tabular-nums tracking-wider", timeClassName)}>
+          {now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+        </div>
+        <div className={cn("flex items-center gap-1.5 px-2 py-0.5 rounded-full border", liveBgClassName)}>
+          <span className={cn("w-1.5 h-1.5 rounded-full animate-pulse", liveDotClassName)} />
+          <span className={cn("text-[10px] font-semibold uppercase tracking-wider", liveTextClassName)}>Live</span>
+        </div>
+      </div>
+    </div>
+  );
+});
 
 const useColumnData = (projects: TVProject[]) => {
   return useMemo(
@@ -49,8 +87,7 @@ const groupProjectsByTitle = (projectList: TVProject[]) => {
 };
 
 export default function LiveTrackingPage() {
-  const { projects, loading, error } = useApiProjects(300000); // Refresh every 5 minutes
-  const currentTime = useCurrentTime();
+  const { projects, loading, error } = useApiProjects(300000);
   const columns = useColumnData(projects);
   const [isLightMode, setIsLightMode] = useState(false);
 
@@ -172,38 +209,17 @@ export default function LiveTrackingPage() {
                 </div> */}
               </div>
 
-              {/* Time & Date Display */}
-              <div className="flex items-center gap-6">
-
-                <div className="text-right hidden sm:block">
-                  <p className={cn("text-sm font-medium", theme.dateText)}>
-                    {currentTime.toLocaleDateString("id-ID", {
-                      weekday: "long",
-                    })}
-                  </p>
-                  <p className={cn("text-xs", theme.subtitleText)}>
-                    {currentTime.toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </p>
-                </div>
-
-                {/* Time */}
-                <div className={cn("flex items-center gap-3 px-4 py-2 rounded-xl border transition-colors duration-300", theme.timeBg)}>
-                  <div className={cn("text-2xl font-mono font-semibold tabular-nums tracking-wider", theme.timeText)}>
-                    {currentTime.toLocaleTimeString("id-ID", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                    })}
-                  </div>
-                  <div className={cn("flex items-center gap-1.5 px-2 py-0.5 rounded-full border", theme.liveBg)}>
-                    <span className={cn("w-1.5 h-1.5 rounded-full animate-pulse", theme.liveDot)} />
-                    <span className={cn("text-[10px] font-semibold uppercase tracking-wider", theme.liveText)}>Live</span>
-                  </div>
-                </div>
+              {/* Time & Date Display — terisolasi, tidak memicu re-render kolom */}
+              <div className="flex items-center gap-4">
+                <LiveClock
+                  timeClassName={cn("text-2xl font-mono font-semibold tabular-nums tracking-wider", theme.timeText)}
+                  weekdayClassName={theme.dateText}
+                  subtitleClassName={theme.subtitleText}
+                  containerClassName={theme.timeBg}
+                  liveBgClassName={theme.liveBg}
+                  liveTextClassName={theme.liveText}
+                  liveDotClassName={theme.liveDot}
+                />
 
                 {/* Theme Toggle */}
                 <Button
@@ -218,18 +234,6 @@ export default function LiveTrackingPage() {
                     <Sun className="w-4 h-4" />
                   )}
                 </Button>
-
-                {/* Admin Button */}
-                {/* <Link href="/">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={cn("gap-2", theme.adminBtn)}
-                  >
-                    <Pencil className="w-4 h-4" />
-                    <span className="hidden md:inline text-xs">Admin</span>
-                  </Button>
-                </Link> */}
               </div>
             </div>
           </div>

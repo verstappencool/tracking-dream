@@ -1,6 +1,12 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, memo } from "react";
+import gsap from "gsap";
+
+/** px/detik — 35 = elegan, 60 = news ticker cepat */
+const SCROLL_SPEED = 35;
+/** gap antar card — sync dengan space-y-3 = 12px */
+const CARD_GAP = 12;
 
 interface AnimatedColumnProps {
     children: React.ReactNode;
@@ -8,106 +14,91 @@ interface AnimatedColumnProps {
     projectsKey: string;
 }
 
-/** pixels per second the list travels when scrolling */
-const SCROLL_SPEED = 40;
-/** milliseconds to pause at the top before each scroll cycle */
-const PAUSE_TOP_MS = 2500;
+export const AnimatedColumn = memo(
+    function AnimatedColumn({ children, shouldAnimate, projectsKey }: AnimatedColumnProps) {
+        const containerRef = useRef<HTMLDivElement>(null);
+        const trackRef = useRef<HTMLDivElement>(null);
+        const singleRef = useRef<HTMLDivElement>(null);
+        const offsetRef = useRef(0);                    // posisi Y saat ini (px)
+        const [needsScroll, setNeedsScroll] = useState(false);
+        const [singleHeight, setSingleHeight] = useState(0);
 
-export function AnimatedColumn({ children, shouldAnimate, projectsKey }: AnimatedColumnProps) {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const contentRef = useRef<HTMLDivElement>(null);
-    const rafRef = useRef<number | null>(null);
-    const [needsScroll, setNeedsScroll] = useState(false);
-    const [scrollHeight, setScrollHeight] = useState(0);
+        // ── Ukur tinggi satu salinan ──
+        useEffect(() => {
+            setNeedsScroll(false);
+            setSingleHeight(0);
+            offsetRef.current = 0;
 
-    // Reset & measure whenever the set of projects changes.
-    // At the time this runs, only a single copy of children is rendered
-    // (because needsScroll is reset to false first), so content.scrollHeight
-    // equals the true height of one full list — which is exactly what we
-    // need for the seamless-loop math.
-    useEffect(() => {
-        setNeedsScroll(false);
-        setScrollHeight(0);
+            const container = containerRef.current;
+            const single = singleRef.current;
+            if (!container || !single) return;
 
-        const container = containerRef.current;
-        const content = contentRef.current;
-        if (!container || !content) return;
+            const tid = setTimeout(() => {
+                const contentH = single.scrollHeight;
+                if (shouldAnimate || contentH > container.clientHeight) {
+                    setSingleHeight(contentH + CARD_GAP);
+                    setNeedsScroll(true);
+                }
+            }, 300);
 
-        let raf: number;
-        const measure = () => {
-            const containerH = container.clientHeight;
-            const contentH = content.scrollHeight;
-            const overflows = shouldAnimate || contentH > containerH;
-            if (overflows) {
-                setScrollHeight(contentH);
-                setNeedsScroll(true);
-            }
-        };
+            return () => clearTimeout(tid);
+        }, [projectsKey, shouldAnimate]);
 
-        // Wait for fonts/images to settle before measuring
-        raf = requestAnimationFrame(() => setTimeout(measure, 150));
-        return () => cancelAnimationFrame(raf);
-    }, [projectsKey, shouldAnimate]);
+        // ── GSAP Ticker: tambah offset tiap frame, wrap pakai modulo ──
+        useEffect(() => {
+            const track = trackRef.current;
+            if (!needsScroll || singleHeight === 0 || !track) return;
 
-    // Seamless vertical scroll loop via requestAnimationFrame.
-    // When needsScroll is true the JSX renders children twice, so the total
-    // DOM height is 2 × scrollHeight.  We animate y from 0 → -scrollHeight;
-    // at that point the second copy is perfectly aligned with where the first
-    // started, so the modulo wrap is invisible to the viewer.
-    useEffect(() => {
-        if (!needsScroll || scrollHeight === 0) {
-            if (contentRef.current) {
-                contentRef.current.style.transform = "translate3d(0,0,0)";
-            }
-            return;
-        }
+            // Reset offset ke 0 setiap kali ukuran berubah
+            offsetRef.current = 0;
+            gsap.set(track, { y: 0, force3D: true });
 
-        const content = contentRef.current;
-        if (!content) return;
+            const tick = (_time: number, deltaTime: number) => {
+                // Kurangi offset: bergerak ke atas
+                offsetRef.current -= (SCROLL_SPEED * deltaTime) / 1000;
 
-        const scrollDuration = (scrollHeight / SCROLL_SPEED) * 1000; // ms
-        const totalCycle = PAUSE_TOP_MS + scrollDuration;
-        const startTime = performance.now();
+                // Modulo wrap — tidak pernah reset paksa, hanya "bungkus" angka
+                // Salinan 2 sudah ada persis di bawah salinan 1 sejauh singleHeight
+                // sehingga transisi wrap ini tidak terlihat sama sekali
+                if (offsetRef.current <= -singleHeight) {
+                    offsetRef.current += singleHeight;
+                }
 
-        const animate = (now: number) => {
-            const elapsed = (now - startTime) % totalCycle;
-            // Hold at y=0 during the pause window, then scroll down
-            const scrollElapsed = Math.max(0, elapsed - PAUSE_TOP_MS);
-            const progress = scrollElapsed / scrollDuration;
-            const y = -(scrollHeight * progress);
-            content.style.transform = `translate3d(0,${y}px,0)`;
-            rafRef.current = requestAnimationFrame(animate);
-        };
+                gsap.set(track, { y: offsetRef.current, force3D: true });
+            };
 
-        rafRef.current = requestAnimationFrame(animate);
+            gsap.ticker.add(tick);
+            // fps 60 sudah default; lag smoothing agar spike CPU tidak bikin jolt
+            gsap.ticker.lagSmoothing(500, 33);
 
-        return () => {
-            if (rafRef.current !== null) {
-                cancelAnimationFrame(rafRef.current);
-                rafRef.current = null;
-            }
-        };
-    }, [needsScroll, scrollHeight]);
+            return () => {
+                gsap.ticker.remove(tick);
+            };
+        }, [needsScroll, singleHeight]);
 
-    return (
-        <div
-            ref={containerRef}
-            className="overflow-hidden h-full"
-        >
-            <div
-                ref={contentRef}
-                className="space-y-3"
-                style={{
-                    transform: "translate3d(0,0,0)",
-                    willChange: needsScroll ? "transform" : "auto",
-                    backfaceVisibility: "hidden",
-                }}
-            >
-                {children}
-                {/* Second copy — only mounted when scrolling is needed, provides
-                    the seamless "wrap-around" so the loop looks continuous. */}
-                {needsScroll && children}
+        return (
+            <div ref={containerRef} className="overflow-hidden h-full">
+                <div
+                    ref={trackRef}
+                    style={{
+                        willChange: needsScroll ? "transform" : "auto",
+                        contain: needsScroll ? "layout style" : "none",
+                    }}
+                >
+                    {/* Salinan 1 — dipakai untuk mengukur tinggi */}
+                    <div ref={singleRef} className="space-y-3">
+                        {children}
+                    </div>
+
+                    {/* Salinan 2 — hanya mount saat scroll aktif */}
+                    {needsScroll && (
+                        <div className="space-y-3" style={{ marginTop: CARD_GAP }}>
+                            {children}
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
-    );
-}
+        );
+    }
+);
+
