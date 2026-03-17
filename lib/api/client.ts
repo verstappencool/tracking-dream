@@ -11,6 +11,21 @@ export const apiClient: AxiosInstance = axios.create({
     timeout: 30000,
 });
 
+// Instance axios khusus TV Dashboard
+const TV_KEY = process.env.NEXT_PUBLIC_TV_API_KEY || "drmlght_tv_h8g2k9m4v1p0x_2026";
+if (process.env.NODE_ENV !== "production") {
+    console.log("TV API Key terdeteksi sebagai:", TV_KEY);
+}
+
+export const tvApiClient: AxiosInstance = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        "Content-Type": "application/json",
+        "x-api-key": TV_KEY,
+    },
+    timeout: 30000,
+});
+
 
 apiClient.interceptors.request.use(
     (config) => {

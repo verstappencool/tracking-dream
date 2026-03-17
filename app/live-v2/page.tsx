@@ -10,8 +10,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { RefreshCw, Loader2, Sun, Moon } from "lucide-react";
 import { ProjectCard } from "@/app/live-v2/_components";
-import { ProtectedRoute } from "@/components/protected-route";
-
 
 const STATUSES: ProjectStatus[] = ["pre-produksi", "shooting", "editing", "selesai", "payment"];
 
@@ -165,7 +163,7 @@ export default function LiveTrackingPage() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={["admin", "producer"]}>
+    <>
       <div className={cn("min-h-screen transition-colors duration-300", theme.pageBg)}>
 
 
@@ -311,6 +309,6 @@ export default function LiveTrackingPage() {
           </div>
         </main>
       </div>
-    </ProtectedRoute>
+    </>
   );
 }

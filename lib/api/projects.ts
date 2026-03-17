@@ -1,4 +1,4 @@
-import { apiClient } from "./client";
+import { tvApiClient } from "./client";
 import type {
     ProjectsAPIResponse,
     EpisodesAPIResponse,
@@ -13,7 +13,7 @@ import type {
  */
 export async function fetchProjects(): Promise<Project[]> {
     try {
-        const response = await apiClient.get<ProjectsAPIResponse>("/projects");
+        const response = await tvApiClient.get<ProjectsAPIResponse>("/projects");
         return response.data.data;
     } catch (error) {
         console.error("Error fetching projects:", error);
@@ -26,7 +26,7 @@ export async function fetchProjects(): Promise<Project[]> {
  */
 export async function fetchEpisodes(projectId: number): Promise<Episode[]> {
     try {
-        const response = await apiClient.get<EpisodesAPIResponse>("/episodes", {
+        const response = await tvApiClient.get<EpisodesAPIResponse>("/episodes", {
             params: { project_id: projectId },
         });
         return response.data.data;
@@ -41,7 +41,7 @@ export async function fetchEpisodes(projectId: number): Promise<Episode[]> {
  */
 export async function fetchMilestones(projectId: number): Promise<MilestoneDetail[]> {
     try {
-        const response = await apiClient.get<MilestonesAPIResponse>("/milestones", {
+        const response = await tvApiClient.get<MilestonesAPIResponse>("/milestones", {
             params: { project_id: projectId },
         });
         return response.data.data;
