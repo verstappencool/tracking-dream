@@ -12,7 +12,7 @@ export const apiClient: AxiosInstance = axios.create({
 });
 
 // Instance axios khusus TV Dashboard
-const TV_KEY = process.env.NEXT_PUBLIC_TV_API_KEY || "drmlght_tv_h8g2k9m4v1p0x_2026";
+const TV_KEY = "drmlght_tv_h8g2k9m4v1p0x_2026";
 if (process.env.NODE_ENV !== "production") {
     console.log("TV API Key terdeteksi sebagai:", TV_KEY);
 }
