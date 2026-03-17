@@ -9,7 +9,7 @@
     "lint": "eslint",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "changeset version && git add -A && git commit -m 'chore: version bump'"
+    "release": "changeset version && git add -A && git commit -m \"chore: version bump\""
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
