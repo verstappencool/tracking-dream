@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useEffect, memo } from "react";
-import gsap from "gsap";
 
 /** px/detik — 35 = elegan, 60 = news ticker cepat */
 const SCROLL_SPEED = 35;
@@ -17,9 +16,7 @@ interface AnimatedColumnProps {
 export const AnimatedColumn = memo(
     function AnimatedColumn({ children, shouldAnimate, projectsKey }: AnimatedColumnProps) {
         const containerRef = useRef<HTMLDivElement>(null);
-        const trackRef = useRef<HTMLDivElement>(null);
         const singleRef = useRef<HTMLDivElement>(null);
-        const offsetRef = useRef(0);                    // posisi Y saat ini (px)
         const [needsScroll, setNeedsScroll] = useState(false);
         const [singleHeight, setSingleHeight] = useState(0);
 
@@ -27,7 +24,6 @@ export const AnimatedColumn = memo(
         useEffect(() => {
             setNeedsScroll(false);
             setSingleHeight(0);
-            offsetRef.current = 0;
 
             const container = containerRef.current;
             const single = singleRef.current;
@@ -36,7 +32,8 @@ export const AnimatedColumn = memo(
             const tid = setTimeout(() => {
                 const contentH = single.scrollHeight;
                 if (shouldAnimate || contentH > container.clientHeight) {
-                    setSingleHeight(contentH + CARD_GAP);
+                    // Bulatkan ke bilangan bulat agar hardware TV tidak jitter (subpixel rendering error)
+                    setSingleHeight(Math.ceil(contentH + CARD_GAP));
                     setNeedsScroll(true);
                 }
             }, 300);
@@ -44,46 +41,36 @@ export const AnimatedColumn = memo(
             return () => clearTimeout(tid);
         }, [projectsKey, shouldAnimate]);
 
-        // ── GSAP Ticker: tambah offset tiap frame, wrap pakai modulo ──
-        useEffect(() => {
-            const track = trackRef.current;
-            if (!needsScroll || singleHeight === 0 || !track) return;
-
-            // Reset offset ke 0 setiap kali ukuran berubah
-            offsetRef.current = 0;
-            gsap.set(track, { y: 0, force3D: true });
-
-            const tick = (_time: number, deltaTime: number) => {
-                // Kurangi offset: bergerak ke atas
-                offsetRef.current -= (SCROLL_SPEED * deltaTime) / 1000;
-
-                // Modulo wrap — tidak pernah reset paksa, hanya "bungkus" angka
-                // Salinan 2 sudah ada persis di bawah salinan 1 sejauh singleHeight
-                // sehingga transisi wrap ini tidak terlihat sama sekali
-                if (offsetRef.current <= -singleHeight) {
-                    offsetRef.current += singleHeight;
-                }
-
-                gsap.set(track, { y: offsetRef.current, force3D: true });
-            };
-
-            gsap.ticker.add(tick);
-            // fps 60 sudah default; lag smoothing agar spike CPU tidak bikin jolt
-            gsap.ticker.lagSmoothing(500, 33);
-
-            return () => {
-                gsap.ticker.remove(tick);
-            };
-        }, [needsScroll, singleHeight]);
+        const duration = singleHeight / SCROLL_SPEED;
 
         return (
-            <div ref={containerRef} className="overflow-hidden h-full">
+            <div ref={containerRef} className="overflow-hidden h-full relative">
+                {needsScroll && (
+                    <style>{`
+                        @keyframes tv-marquee-${projectsKey} {
+                            0% { transform: translate3d(0, 0, 0); }
+                            100% { transform: translate3d(0, -${singleHeight}px, 0); }
+                        }
+                    `}</style>
+                )}
+                
                 <div
-                    ref={trackRef}
-                    style={{
-                        willChange: needsScroll ? "transform" : "auto",
-                        contain: needsScroll ? "layout style" : "none",
-                    }}
+                    style={
+                        needsScroll
+                            ? {
+                                  willChange: "transform",
+                                  contain: "layout style",
+                                  animation: `tv-marquee-${projectsKey} ${duration}s linear infinite`,
+                                  // Hardware Acceleration mutlak untuk Android jadul (Smart TV/Android Box HW Compose)
+                                  transform: "translateZ(0)",
+                                  WebkitTransform: "translateZ(0)",
+                                  backfaceVisibility: "hidden",
+                                  WebkitBackfaceVisibility: "hidden",
+                                  perspective: 1000,
+                                  WebkitPerspective: 1000,
+                              }
+                            : {}
+                    }
                 >
                     {/* Salinan 1 — dipakai untuk mengukur tinggi */}
                     <div ref={singleRef} className="space-y-3">

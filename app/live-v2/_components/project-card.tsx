@@ -18,11 +18,11 @@ export const STATUS_GRADIENTS: Record<ProjectStatus, string> = {
 };
 
 export const STATUS_GRADIENTS_LIGHT: Record<ProjectStatus, string> = {
-    "pre-produksi": "from-pink-50/90 to-pink-100/80 border-2 border-pink-300 backdrop-blur-xl shadow-xl shadow-pink-200/30",
-    shooting: "from-purple-50/90 to-purple-100/80 border-2 border-purple-300 backdrop-blur-xl shadow-xl shadow-purple-200/30",
-    editing: "from-blue-50/90 to-blue-100/80 border-2 border-blue-300 backdrop-blur-xl shadow-xl shadow-blue-200/30",
-    selesai: "from-emerald-50/90 to-emerald-100/80 border-2 border-emerald-300 backdrop-blur-xl shadow-xl shadow-emerald-200/30",
-    payment: "from-amber-50/90 to-amber-100/80 border-2 border-amber-300 backdrop-blur-xl shadow-xl shadow-amber-200/30",
+    "pre-produksi": "from-pink-50/90 to-pink-100/90 border-2 border-pink-300",
+    shooting: "from-purple-50/90 to-purple-100/90 border-2 border-purple-300",
+    editing: "from-blue-50/90 to-blue-100/90 border-2 border-blue-300",
+    selesai: "from-emerald-50/90 to-emerald-100/90 border-2 border-emerald-300",
+    payment: "from-amber-50/90 to-amber-100/90 border-2 border-amber-300",
 };
 
 export const STATUS_ACCENTS: Record<ProjectStatus, string> = {
@@ -90,7 +90,8 @@ export function ProjectCard({ project, config, groupIndex, isLightMode = false }
             "rounded-xl overflow-hidden border transition-all flex",
             "bg-linear-to-br",
             gradients[project.status],
-            isLightMode ? "hover:shadow-lg" : "backdrop-blur-sm hover:brightness-110"
+            // Hapus backdrop-blur dan shadow yang memberatkan rendering GPU
+            isLightMode ? "" : "hover:brightness-110"
         )}>
             {/* Left accent strip */}
             <div className={cn("w-1 shrink-0 rounded-l-xl", accentLine[project.status])} />

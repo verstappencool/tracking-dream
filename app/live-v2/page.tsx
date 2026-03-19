@@ -98,12 +98,12 @@ export default function LiveTrackingPage() {
 
     // Header - Glass effect
     headerBg: isLightMode
-      ? "bg-white/70 backdrop-blur-xl border-white/50 shadow-lg shadow-gray-200/50"
-      : "bg-slate-900/80 border-slate-800/50",
+      ? "bg-white/95 border-gray-200"
+      : "bg-slate-900/95 border-slate-800/50",
 
     // Logo
     logoBg: isLightMode
-      ? "from-emerald-200/80 to-cyan-200/80 border-emerald-400/50 backdrop-blur-sm"
+      ? "from-emerald-200/80 to-cyan-200/80 border-emerald-400/50"
       : "from-emerald-500/20 to-cyan-500/20 border-emerald-500/30",
     logoIcon: isLightMode ? "text-emerald-700" : "text-emerald-400",
 
@@ -113,52 +113,52 @@ export default function LiveTrackingPage() {
 
     // Time display 
     timeBg: isLightMode
-      ? "bg-white/60 backdrop-blur-md border-white/80 shadow-lg shadow-gray-200/30"
+      ? "bg-white border-gray-200"
       : "bg-slate-800/50 border-slate-700/50",
     timeText: isLightMode ? "text-gray-950 font-black" : "text-white",
     dateText: isLightMode ? "text-gray-700 font-semibold" : "text-slate-300",
 
     // Live badge
     liveBg: isLightMode
-      ? "bg-emerald-100/80 backdrop-blur-sm border-emerald-400/50 shadow-md shadow-emerald-200/50"
+      ? "bg-emerald-100 border-emerald-400/50"
       : "bg-emerald-500/20 border-emerald-500/30",
     liveText: isLightMode ? "text-emerald-800 font-bold" : "text-emerald-400",
     liveDot: isLightMode ? "bg-emerald-600" : "bg-emerald-400",
 
     // Admin button
     adminBtn: isLightMode
-      ? "text-gray-700 hover:text-gray-950 hover:bg-white/50 backdrop-blur-sm font-semibold"
+      ? "text-gray-700 hover:text-gray-950 hover:bg-gray-100 font-semibold"
       : "text-slate-400 hover:text-white hover:bg-slate-800/50",
 
     // Column 
     columnBg: isLightMode
-      ? "bg-white/50 backdrop-blur-xl border-white/60 shadow-xl shadow-gray-200/40"
+      ? "bg-slate-100 border-gray-300"
       : "bg-slate-900/50 border-slate-800",
     columnHeader: isLightMode
-      ? "border-gray-200/50"
+      ? "border-gray-300"
       : "border-slate-800",
     columnLabel: isLightMode ? "text-gray-950 font-extrabold" : "text-white",
     columnCount: isLightMode
-      ? "text-gray-800 bg-white/70 backdrop-blur-sm font-bold shadow-sm"
+      ? "text-gray-800 bg-white font-bold"
       : "text-slate-400 bg-slate-800",
     emptyText: isLightMode ? "text-gray-500 font-medium" : "text-slate-600",
 
     // Footer 
     footerBg: isLightMode
-      ? "bg-white/40 backdrop-blur-md text-gray-700 font-medium"
+      ? "bg-white text-gray-700 font-medium"
       : "bg-slate-800/50 text-slate-400",
-    footerBorder: isLightMode ? "border-white/50" : "border-slate-800",
+    footerBorder: isLightMode ? "border-gray-200" : "border-slate-800",
     footerText: isLightMode ? "text-gray-600 font-medium" : "text-slate-600",
 
     // Loading 
     loadingBg: isLightMode
-      ? "bg-white/80 backdrop-blur-xl"
-      : "bg-slate-900/90",
+      ? "bg-white/95"
+      : "bg-slate-900/95",
     loadingText: isLightMode ? "text-gray-800 font-semibold" : "text-slate-300",
 
     // Error 
     errorBg: isLightMode
-      ? "bg-red-50/80 backdrop-blur-sm border-red-300/50 text-red-700 font-semibold shadow-lg shadow-red-100/50"
+      ? "bg-red-50 border-red-300/50 text-red-700 font-semibold"
       : "bg-red-500/10 border-red-500/30 text-red-400",
   };
 
