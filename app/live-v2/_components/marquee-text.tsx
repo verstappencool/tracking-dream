@@ -30,27 +30,27 @@ export function MarqueeText({ userName, taskName, className }: MarqueeTextProps)
     return (
         <div ref={containerRef} className={`overflow-hidden whitespace-nowrap relative ${className || ""}`}>
             {distance > 0 && (
-                 <style>{`
+                <style>{`
                     @keyframes marquee-x-${id} {
                         0% { transform: translate3d(0, 0, 0); }
                         100% { transform: translate3d(-${distance}px, 0, 0); }
                     }
                 `}</style>
             )}
-            <div 
-                ref={textRef} 
+            <div
+                ref={textRef}
                 className="inline-flex gap-4"
                 style={
                     distance > 0
                         ? {
-                              willChange: "transform",
-                              animation: `marquee-x-${id} 10s linear infinite`,
-                              // Hardware Acceleration untuk Android TV/Box Browser
-                              transform: "translateZ(0)",
-                              WebkitTransform: "translateZ(0)",
-                              backfaceVisibility: "hidden",
-                              WebkitBackfaceVisibility: "hidden",
-                          }
+                            willChange: "transform",
+                            animation: `marquee-x-${id} 10s linear infinite`,
+                            // Hardware Acceleration untuk Android TV/Box Browser
+                            transform: "translateZ(0)",
+                            WebkitTransform: "translateZ(0)",
+                            backfaceVisibility: "hidden",
+                            WebkitBackfaceVisibility: "hidden",
+                        }
                         : {}
                 }
             >

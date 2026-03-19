@@ -53,22 +53,22 @@ export const AnimatedColumn = memo(
                         }
                     `}</style>
                 )}
-                
+
                 <div
                     style={
                         needsScroll
                             ? {
-                                  willChange: "transform",
-                                  contain: "layout style",
-                                  animation: `tv-marquee-${projectsKey} ${duration}s linear infinite`,
-                                  // Hardware Acceleration mutlak untuk Android jadul (Smart TV/Android Box HW Compose)
-                                  transform: "translateZ(0)",
-                                  WebkitTransform: "translateZ(0)",
-                                  backfaceVisibility: "hidden",
-                                  WebkitBackfaceVisibility: "hidden",
-                                  perspective: 1000,
-                                  WebkitPerspective: 1000,
-                              }
+                                willChange: "transform",
+                                contain: "layout style",
+                                animation: `tv-marquee-${projectsKey} ${duration}s linear infinite`,
+                                // Hardware Acceleration mutlak untuk Android jadul (Smart TV/Android Box HW Compose)
+                                transform: "translateZ(0)",
+                                WebkitTransform: "translateZ(0)",
+                                backfaceVisibility: "hidden",
+                                WebkitBackfaceVisibility: "hidden",
+                                perspective: 1000,
+                                WebkitPerspective: 1000,
+                            }
                             : {}
                     }
                 >
