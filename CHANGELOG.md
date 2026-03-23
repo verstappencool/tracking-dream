@@ -1,5 +1,11 @@
 # tracking-dreamlight-live
 
+## 1.2.0
+
+### Minor Changes
+
+- 5cd7598: up version
+
 ## 1.1.0
 
 ### Minor Changes
