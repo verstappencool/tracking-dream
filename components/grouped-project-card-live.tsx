@@ -47,8 +47,8 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLigh
     <div className={cn(
       "rounded-xl overflow-hidden transition-colors",
       isLightMode
-        ? "bg-white/70 backdrop-blur-xl border-2 border-gray-200 shadow-xl shadow-gray-300/50"
-        : "bg-slate-800/80 border border-slate-700/50 backdrop-blur-sm"
+        ? "bg-white/90 border-2 border-gray-200"
+        : "bg-slate-800/90 border border-slate-700/50"
     )}>
       {/* Header Card */}
       <div
@@ -92,8 +92,8 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLigh
                 </span>
               )}
               <h3 className={cn(
-                "font-extrabold text-lg tracking-wide uppercase",
-                isLightMode ? "text-gray-950 drop-shadow-sm" : "text-white drop-shadow-sm"
+                "font-bold text-base tracking-wide uppercase",
+                isLightMode ? "text-gray-900 drop-shadow-sm" : "text-white drop-shadow-sm"
               )}>
                 {title}
               </h3>
@@ -139,7 +139,7 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLigh
       {isExpanded && (
         <div className={cn(
           "p-3 space-y-2",
-          isLightMode ? "bg-gray-50/80 backdrop-blur-md" : "bg-slate-900/40"
+          isLightMode ? "bg-gray-50" : "bg-slate-900/80"
         )}>
           {projects.map((project) => {
             const createdDate = project.createdAt ? new Date(project.createdAt) : null;
@@ -150,8 +150,8 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLigh
                 className={cn(
                   "rounded-lg p-3 transition-colors",
                   isLightMode
-                    ? "bg-white/90 backdrop-blur-md border-2 border-gray-200 hover:bg-white shadow-md"
-                    : "bg-slate-800/90 border border-slate-700/50 hover:bg-slate-800"
+                    ? "bg-white border-2 border-gray-200 hover:bg-gray-50"
+                    : "bg-slate-800 border border-slate-700/50 hover:bg-slate-700"
                 )}
               >
                 <div className="flex items-start gap-3">
@@ -163,8 +163,8 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLigh
                       </span>
                       {project.subtitle && (
                         <h4 className={cn(
-                          "text-xl font-bold tracking-wide flex-1",
-                          isLightMode ? "text-gray-950" : "text-white"
+                          "text-lg font-bold tracking-wide flex-1",
+                          isLightMode ? "text-gray-900" : "text-white"
                         )}>
                           {project.subtitle}
                         </h4>

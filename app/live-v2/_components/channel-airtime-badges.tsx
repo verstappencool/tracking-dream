@@ -10,7 +10,7 @@ export function ChannelAirTimeBadges({ channel, airTime, isLightMode = false }: 
     if (!channel && !airTime) return null;
 
     const badgeClass = isLightMode
-        ? "text-gray-700 bg-white/80 backdrop-blur-sm border border-gray-300 font-medium shadow-sm"
+        ? "text-gray-700 bg-white border border-gray-300 font-medium"
         : "text-slate-300 bg-slate-700/50";
 
     return (

@@ -98,12 +98,12 @@ export default function LiveTrackingPage() {
 
     // Header - Glass effect
     headerBg: isLightMode
-      ? "bg-white/70 backdrop-blur-xl border-white/50 shadow-lg shadow-gray-200/50"
-      : "bg-slate-900/80 border-slate-800/50",
+      ? "bg-white/95 border-gray-200"
+      : "bg-slate-900/95 border-slate-800/50",
 
     // Logo
     logoBg: isLightMode
-      ? "from-emerald-200/80 to-cyan-200/80 border-emerald-400/50 backdrop-blur-sm"
+      ? "from-emerald-200/80 to-cyan-200/80 border-emerald-400/50"
       : "from-emerald-500/20 to-cyan-500/20 border-emerald-500/30",
     logoIcon: isLightMode ? "text-emerald-700" : "text-emerald-400",
 
@@ -113,52 +113,52 @@ export default function LiveTrackingPage() {
 
     // Time display 
     timeBg: isLightMode
-      ? "bg-white/60 backdrop-blur-md border-white/80 shadow-lg shadow-gray-200/30"
+      ? "bg-white border-gray-200"
       : "bg-slate-800/50 border-slate-700/50",
     timeText: isLightMode ? "text-gray-950 font-black" : "text-white",
     dateText: isLightMode ? "text-gray-700 font-semibold" : "text-slate-300",
 
     // Live badge
     liveBg: isLightMode
-      ? "bg-emerald-100/80 backdrop-blur-sm border-emerald-400/50 shadow-md shadow-emerald-200/50"
+      ? "bg-emerald-100 border-emerald-400/50"
       : "bg-emerald-500/20 border-emerald-500/30",
     liveText: isLightMode ? "text-emerald-800 font-bold" : "text-emerald-400",
     liveDot: isLightMode ? "bg-emerald-600" : "bg-emerald-400",
 
     // Admin button
     adminBtn: isLightMode
-      ? "text-gray-700 hover:text-gray-950 hover:bg-white/50 backdrop-blur-sm font-semibold"
+      ? "text-gray-700 hover:text-gray-950 hover:bg-gray-100 font-semibold"
       : "text-slate-400 hover:text-white hover:bg-slate-800/50",
 
     // Column 
     columnBg: isLightMode
-      ? "bg-white/50 backdrop-blur-xl border-white/60 shadow-xl shadow-gray-200/40"
+      ? "bg-slate-100 border-gray-300"
       : "bg-slate-900/50 border-slate-800",
     columnHeader: isLightMode
-      ? "border-gray-200/50"
+      ? "border-gray-300"
       : "border-slate-800",
     columnLabel: isLightMode ? "text-gray-950 font-extrabold" : "text-white",
     columnCount: isLightMode
-      ? "text-gray-800 bg-white/70 backdrop-blur-sm font-bold shadow-sm"
+      ? "text-gray-800 bg-white font-bold"
       : "text-slate-400 bg-slate-800",
     emptyText: isLightMode ? "text-gray-500 font-medium" : "text-slate-600",
 
     // Footer 
     footerBg: isLightMode
-      ? "bg-white/40 backdrop-blur-md text-gray-700 font-medium"
+      ? "bg-white text-gray-700 font-medium"
       : "bg-slate-800/50 text-slate-400",
-    footerBorder: isLightMode ? "border-white/50" : "border-slate-800",
+    footerBorder: isLightMode ? "border-gray-200" : "border-slate-800",
     footerText: isLightMode ? "text-gray-600 font-medium" : "text-slate-600",
 
     // Loading 
     loadingBg: isLightMode
-      ? "bg-white/80 backdrop-blur-xl"
-      : "bg-slate-900/90",
+      ? "bg-white/95"
+      : "bg-slate-900/95",
     loadingText: isLightMode ? "text-gray-800 font-semibold" : "text-slate-300",
 
     // Error 
     errorBg: isLightMode
-      ? "bg-red-50/80 backdrop-blur-sm border-red-300/50 text-red-700 font-semibold shadow-lg shadow-red-100/50"
+      ? "bg-red-50 border-red-300/50 text-red-700 font-semibold"
       : "bg-red-500/10 border-red-500/30 text-red-400",
   };
 
@@ -185,7 +185,7 @@ export default function LiveTrackingPage() {
 
 
         <header className={cn("backdrop-blur-xl border-b sticky top-0 z-50 transition-colors duration-300", theme.headerBg)}>
-          <div className="max-w-480 mx-auto px-8 py-5">
+          <div className="w-full px-4 sm:px-6 2xl:px-8 py-3 mx-auto">
             <div className="flex items-center justify-between">
               {/* Logo & Brand */}
               <div className="flex items-center gap-4">
@@ -238,8 +238,8 @@ export default function LiveTrackingPage() {
         </header>
 
         {/* Kanban Board */}
-        <main className="max-w- mx-auto px-8 py-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5">
+        <main className="w-full px-2 sm:px-4 2xl:px-6 pb-4 pt-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 2xl:gap-5">
             {columns.map((col) => {
               const config = STATUS_CONFIG[col.status];
               const groupedProjects = groupProjectsByTitle(col.projects);
@@ -247,12 +247,12 @@ export default function LiveTrackingPage() {
               const projectsKey = col.projects.map(p => p.id).join('-');
 
               return (
-                <div key={col.status} className={cn("rounded-xl p-4 h-[calc(100vh-180px)] border flex flex-col transition-colors duration-300", theme.columnBg)}>
+                <div key={col.status} className={cn("rounded-xl p-3 2xl:p-4 h-[calc(100vh-110px)] border flex flex-col transition-colors duration-300", theme.columnBg)}>
                   {/* Column Header */}
-                  <div className={cn("flex items-center gap-3 mb-4 pb-3 border-b", theme.columnHeader)}>
-                    <span className="text-3xl">{config.icon}</span>
-                    <span className={cn("font-bold text-lg uppercase tracking-wide", theme.columnLabel)}>{config.label}</span>
-                    <span className={cn("ml-auto text-base px-3 py-1 rounded-full font-bold", theme.columnCount)}>
+                  <div className={cn("flex items-center gap-2 mb-3 pb-2 border-b", theme.columnHeader)}>
+                    <span className="text-2xl 2xl:text-3xl">{config.icon}</span>
+                    <span className={cn("font-bold text-sm 2xl:text-lg lg:text-base uppercase tracking-tight", theme.columnLabel)}>{config.label}</span>
+                    <span className={cn("ml-auto text-sm 2xl:text-base px-2.5 py-0.5 rounded-full font-bold", theme.columnCount)}>
                       {col.projects.length}
                     </span>
                   </div>
