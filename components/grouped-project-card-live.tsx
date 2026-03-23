@@ -92,8 +92,8 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLigh
                 </span>
               )}
               <h3 className={cn(
-                "font-extrabold text-lg tracking-wide uppercase",
-                isLightMode ? "text-gray-950 drop-shadow-sm" : "text-white drop-shadow-sm"
+                "font-bold text-base tracking-wide uppercase",
+                isLightMode ? "text-gray-900 drop-shadow-sm" : "text-white drop-shadow-sm"
               )}>
                 {title}
               </h3>
@@ -163,8 +163,8 @@ export function GroupedProjectCardLive({ title, projects, groupIndex = 0, isLigh
                       </span>
                       {project.subtitle && (
                         <h4 className={cn(
-                          "text-xl font-bold tracking-wide flex-1",
-                          isLightMode ? "text-gray-950" : "text-white"
+                          "text-lg font-bold tracking-wide flex-1",
+                          isLightMode ? "text-gray-900" : "text-white"
                         )}>
                           {project.subtitle}
                         </h4>

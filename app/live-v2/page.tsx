@@ -185,7 +185,7 @@ export default function LiveTrackingPage() {
 
 
         <header className={cn("backdrop-blur-xl border-b sticky top-0 z-50 transition-colors duration-300", theme.headerBg)}>
-          <div className="max-w-480 mx-auto px-8 py-5">
+          <div className="w-full px-4 sm:px-6 2xl:px-8 py-3 mx-auto">
             <div className="flex items-center justify-between">
               {/* Logo & Brand */}
               <div className="flex items-center gap-4">
@@ -238,8 +238,8 @@ export default function LiveTrackingPage() {
         </header>
 
         {/* Kanban Board */}
-        <main className="max-w- mx-auto px-8 py-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5">
+        <main className="w-full px-2 sm:px-4 2xl:px-6 pb-4 pt-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 2xl:gap-5">
             {columns.map((col) => {
               const config = STATUS_CONFIG[col.status];
               const groupedProjects = groupProjectsByTitle(col.projects);
@@ -247,12 +247,12 @@ export default function LiveTrackingPage() {
               const projectsKey = col.projects.map(p => p.id).join('-');
 
               return (
-                <div key={col.status} className={cn("rounded-xl p-4 h-[calc(100vh-180px)] border flex flex-col transition-colors duration-300", theme.columnBg)}>
+                <div key={col.status} className={cn("rounded-xl p-3 2xl:p-4 h-[calc(100vh-110px)] border flex flex-col transition-colors duration-300", theme.columnBg)}>
                   {/* Column Header */}
-                  <div className={cn("flex items-center gap-3 mb-4 pb-3 border-b", theme.columnHeader)}>
-                    <span className="text-3xl">{config.icon}</span>
-                    <span className={cn("font-bold text-lg uppercase tracking-wide", theme.columnLabel)}>{config.label}</span>
-                    <span className={cn("ml-auto text-base px-3 py-1 rounded-full font-bold", theme.columnCount)}>
+                  <div className={cn("flex items-center gap-2 mb-3 pb-2 border-b", theme.columnHeader)}>
+                    <span className="text-2xl 2xl:text-3xl">{config.icon}</span>
+                    <span className={cn("font-bold text-sm 2xl:text-lg lg:text-base uppercase tracking-tight", theme.columnLabel)}>{config.label}</span>
+                    <span className={cn("ml-auto text-sm 2xl:text-base px-2.5 py-0.5 rounded-full font-bold", theme.columnCount)}>
                       {col.projects.length}
                     </span>
                   </div>

@@ -140,12 +140,16 @@ export function ProjectCard({ project, config, groupIndex, isLightMode = false }
                         </span>
                     )}
 
-                    <span className={cn(
-                        "text-sm font-semibold uppercase tracking-wide truncate",
-                        isLightMode ? "text-gray-500" : "text-slate-400"
-                    )}>
-                        {project.title}
-                    </span>
+                    {/* Tampilkan project.title di meta bar hanya jika ada subtitle (supaya tidak redundan dua kali) */}
+                    {project.subtitle && (
+                        <span className={cn(
+                            "text-sm font-semibold uppercase tracking-wide truncate",
+                            isLightMode ? "text-gray-500" : "text-slate-400"
+                        )}>
+                            {project.title}
+                        </span>
+                    )}
+
                     {/* Channel badge inline */}
                     {project.channel && (
                         <span className={cn(
@@ -162,16 +166,16 @@ export function ProjectCard({ project, config, groupIndex, isLightMode = false }
                 {/* ── HERO: Episode Title ── */}
                 {project.subtitle ? (
                     <h3 className={cn(
-                        "text-2xl font-black leading-tight mb-2 tracking-tight",
-                        isLightMode ? "text-gray-950" : "text-white"
+                        "text-lg font-bold leading-snug mb-2 tracking-tight",
+                        isLightMode ? "text-gray-900" : "text-white"
                     )}>
                         {project.subtitle}
                     </h3>
                 ) : (
                     // Fallback bila tidak ada episode title: tampilkan project title besar
                     <h3 className={cn(
-                        "text-2xl font-black leading-tight mb-2 tracking-tight uppercase",
-                        isLightMode ? "text-gray-950" : "text-white"
+                        "text-lg font-bold leading-snug mb-2 tracking-tight uppercase",
+                        isLightMode ? "text-gray-900" : "text-white"
                     )}>
                         {project.title}
                     </h3>
