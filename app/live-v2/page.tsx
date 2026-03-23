@@ -238,8 +238,8 @@ export default function LiveTrackingPage() {
         </header>
 
         {/* Kanban Board */}
-        <main className="w-full px-2 sm:px-4 2xl:px-6 pb-4 pt-3">
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 2xl:gap-5">
+        <main className="w-full px-2 pb-4 pt-3 ">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-1 2xl:gap-2">
             {columns.map((col) => {
               const config = STATUS_CONFIG[col.status];
               const groupedProjects = groupProjectsByTitle(col.projects);
@@ -297,7 +297,7 @@ export default function LiveTrackingPage() {
             })}
           </div>
 
-          {/* Footer */}
+          {/* Footer
           <div className="mt-8 text-center space-y-4">
             <div className={cn("inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs", theme.footerBg)}>
               <RefreshCw className="w-3 h-3 animate-spin" />
@@ -306,7 +306,7 @@ export default function LiveTrackingPage() {
             <div className={cn("py-4 border-t", theme.footerBorder)}>
               <p className={cn("text-xs", theme.footerText)}>🔒 Mode Read Only • Data real-time dari {process.env.NEXT_PUBLIC_API_URL}</p>
             </div>
-          </div>
+          </div> */}
         </main>
       </div>
     </>
